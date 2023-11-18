@@ -32,7 +32,7 @@ var pagesDirectory string = func() string {
 	return env
 }()
 
-// HttpGetPage godoc
+// HttpPageGet godoc
 // @Summary returns the content of a page
 // @Schemes
 // @Description returns the content of a page based on it's path
@@ -41,7 +41,7 @@ var pagesDirectory string = func() string {
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /page/:path [get]
-func HttpGetPage(c *gin.Context) {
+func HttpPageGet(c *gin.Context) {
 
 	filePath := c.Param("path")
 	if !pagesPathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
@@ -110,7 +110,7 @@ func HttpGetPage(c *gin.Context) {
 	}
 }
 
-// HttpPostPage godoc
+// HttpPagePost godoc
 // @Summary creates a page
 // @Schemes
 // @Description creates a page based on it's path
@@ -119,10 +119,10 @@ func HttpGetPage(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /page/:path [post]
-func HttpPostPage(c *gin.Context) {
+func HttpPagePost(c *gin.Context) {
 }
 
-// HttpDeletePage godoc
+// HttpPageDelete godoc
 // @Summary deletes a page
 // @Schemes
 // @Description deletes a page based on it's path
@@ -131,5 +131,5 @@ func HttpPostPage(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /page/:path [delete]
-func HttpDeletePage(c *gin.Context) {
+func HttpPageDelete(c *gin.Context) {
 }

@@ -2,6 +2,20 @@ info:
   contact: {}
 paths:
   /page/:path:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a page based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: deletes a page
+      tags:
+      - basic
     get:
       consumes:
       - application/json
@@ -14,6 +28,20 @@ paths:
           schema:
             type: string
       summary: returns the content of a page
+      tags:
+      - basic
+    post:
+      consumes:
+      - application/json
+      description: creates a page based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: creates a page
       tags:
       - basic
 swagger: "2.0"

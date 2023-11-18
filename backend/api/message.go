@@ -4,20 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MessageRoutes(r *gin.Engine) {
+func HttpMessageGet(c *gin.Context) {
+}
 
-	r.GET("/message/*id", func(c *gin.Context) {
+func HttpMessageUpdate(c *gin.Context) {
+}
 
-	})
+func HttpMessageCreate(c *gin.Context) {
+}
 
-	r.POST("/message/*id", func(c *gin.Context) {
-	})
-
-	// handle all paths of /page under one handler for DELETE
-	r.DELETE("/message/*id", func(c *gin.Context) {
-
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+func HttpMessageDelete(c *gin.Context) {
 }
