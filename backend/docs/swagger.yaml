@@ -44,4 +44,58 @@ paths:
       summary: creates a page
       tags:
       - basic
+  /user:
+    post:
+      description: creates a page based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: creates a page
+      tags:
+      - basic
+  /user/:userId:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a user based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: deletes a user
+      tags:
+      - basic
+    get:
+      description: creates a page based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: creates a page
+      tags:
+      - basic
+    post:
+      consumes:
+      - application/json
+      description: creates a page based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: creates a page
+      tags:
+      - basic
 swagger: "2.0"

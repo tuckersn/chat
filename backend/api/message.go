@@ -7,10 +7,7 @@ import (
 func HttpMessageGet(c *gin.Context) {
 }
 
-func HttpMessageUpdate(c *gin.Context) {
-}
-
-func HttpMessageCreate(c *gin.Context) {
+func HttpMessageCreateOrUpdate(c *gin.Context) {
 }
 
 func HttpMessageDelete(c *gin.Context) {

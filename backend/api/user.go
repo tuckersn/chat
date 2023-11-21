@@ -11,6 +11,7 @@ import "github.com/gin-gonic/gin"
 // @Success 200 {string} Helloworld
 // @Router /user/:userId [get]
 func HttpUserGet(r *gin.Context) {
+
 }
 
 // HttpUserGet godoc

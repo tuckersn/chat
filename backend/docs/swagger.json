@@ -68,6 +68,88 @@
                     }
                 }
             }
+        },
+        "/user": {
+            "post": {
+                "description": "creates a page based on it's path",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "basic"
+                ],
+                "summary": "creates a page",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/:userId": {
+            "get": {
+                "description": "creates a page based on it's path",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "basic"
+                ],
+                "summary": "creates a page",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "creates a page based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "basic"
+                ],
+                "summary": "creates a page",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deletes a user based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "basic"
+                ],
+                "summary": "deletes a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     }
 }
