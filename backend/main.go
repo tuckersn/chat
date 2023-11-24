@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/tuckersn/chatbackend/db"
+	"github.com/tuckersn/chatbackend/openai"
 )
 
 func main() {
@@ -21,5 +23,10 @@ func main() {
 
 	logger.Println("Initializing database connection")
 	db.InitializeDatabaseConnection()
+
+	var models []openai.ModelResponse
+	models, err = openai.GetModels()
+	fmt.Println(models)
+
 	httpServer()
 }

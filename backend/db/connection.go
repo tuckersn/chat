@@ -100,4 +100,16 @@ func InitializeDatabaseConnection() {
 		table.Init()
 	}
 
+	if os.Getenv("CR_PG_PGVECTOR") == "true" {
+		log.Println("pgvector is enabled for vector similarity search")
+		_, err = Con.Exec("CREATE EXTENSION IF NOT EXISTS pgvector")
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if os.Getenv("OPENAI_API_KEY") != "" {
+			DBInitializeOpenAIEmbeddings()
+		}
+	}
+
 }

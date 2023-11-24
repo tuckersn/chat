@@ -20,7 +20,7 @@ func (r *Room) Owner() *User {
 
 func (r *Room) Members() []*User {
 	var users []*User
-	err := Con.Select(&users, "SELECT * FROM users WHERE id IN (SELECT user_id FROM room_members WHERE room_id = $1)", r.Id)
+	err := Con.Select(&users, "SELECT * FROM user WHERE id IN (SELECT user_id FROM room_members WHERE room_id = $1)", r.Id)
 	if err != nil {
 		panic(err)
 	}
@@ -39,7 +39,7 @@ func (r *Room) IsMember(username string) []*Message {
 
 func DBInitializeRoomTable() {
 	_, err := Con.Exec(`
-	CREATE TABLE IF NOT EXISTS rooms (
+	CREATE TABLE IF NOT EXISTS room (
 		id SERIAL PRIMARY KEY,
 		name TEXT NOT NULL,
 		description TEXT NOT NULL,
@@ -53,7 +53,7 @@ func DBInitializeRoomTable() {
 	}
 
 	_, err = Con.Exec(`
-	CREATE TABLE IF NOT EXISTS room_members (
+	CREATE TABLE IF NOT EXISTS room_member (
 		id SERIAL PRIMARY KEY,
 		room_id INTEGER NOT NULL,
 		user_id INTEGER NOT NULL,

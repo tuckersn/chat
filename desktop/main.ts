@@ -1,7 +1,8 @@
 import { app, BrowserWindow, Menu, Tray } from 'electron';
 
-// we'll accept these errors as they're handled early on
+const production = process.env.NODE_ENV === 'production';
 
+// we'll accept these errors as they're handled early on
 //@ts-expect-error
 let tray: Tray = null;
 //@ts-expect-error
@@ -16,8 +17,9 @@ app.on('ready', () => {
             nodeIntegration: false,
         },
     });
-    mainWindow.loadFile('./initial.html');
 
+    mainWindow.loadFile('./initial.html');
+    
     tray = new Tray('../assets/Alecive-Flatwoken-Apps-Home.512.png');
     tray.setToolTip('This is my application.');
     tray.setContextMenu(

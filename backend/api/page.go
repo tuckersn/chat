@@ -6,18 +6,10 @@ import (
 	"log"
 	"os"
 	"path"
-	"regexp"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tuckersn/chatbackend/db"
 )
-
-var pagesPathRegex = func() *regexp.Regexp {
-	regex, err := regexp.Compile("^[A-Za-z_\\/]+$")
-	if err != nil {
-		panic(err)
-	}
-	return regex
-}()
 
 var pagesDirectory string = func() string {
 	env := os.Getenv("PAGES_DIRECTORY")
@@ -44,7 +36,7 @@ var pagesDirectory string = func() string {
 func HttpPageGet(c *gin.Context) {
 
 	filePath := c.Param("path")
-	if !pagesPathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
+	if !db.PagePathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
 		c.JSON(404, gin.H{
 			"message": "Not Found, invalid path",
 		})
