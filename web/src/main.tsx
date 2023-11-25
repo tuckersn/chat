@@ -27,7 +27,7 @@ render(<BrowserRouter>
                 <Route index element={<UserOverviewAdminPage/>}/>
                 <Route path="list" element={<h1>Server List</h1>}/>
                 <Route path="user">
-                    <Route path="overview" element={<UserOverviewAdminPage/>}/>
+                    <Route path="overview" element={<ServerOverviewAdminPage/>}/>
                     <Route path="list" element={<UserListAdminPage/>}/>
                     <Route path="id/:userId" element={<UserManagementPage/>}/>
                     <Route path="*" element={<NotFoundPage/>}/>

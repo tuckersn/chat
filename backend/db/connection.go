@@ -18,10 +18,10 @@ type Table struct {
 
 // In-order of initialization
 var Tables = []Table{
-	{"databast_settings", DBInitializeDatabaseSettings},
-	{"users", DBInitializeUserTable},
-	{"rooms", DBInitializeRoomTable},
-	{"messages", DBInitializeMessageTable},
+	{"databast_settings", TableInitDatabaseSettings},
+	{"users", TableInitUser},
+	{"rooms", TableInitRoom},
+	{"messages", TableInitMessage},
 }
 
 func InitializeDatabaseConnection() {
@@ -108,7 +108,7 @@ func InitializeDatabaseConnection() {
 		}
 
 		if os.Getenv("OPENAI_API_KEY") != "" {
-			DBInitializeOpenAIEmbeddings()
+			TableInitOpenAIEmbeddings()
 		}
 	}
 

@@ -15,7 +15,7 @@ type RoomMember struct {
 }
 
 func (r *Room) Owner() *User {
-	return DBGetUser(r.OwnerId)
+	return GetUser(r.OwnerId)
 }
 
 func (r *Room) Members() []*User {
@@ -37,7 +37,7 @@ func (r *Room) IsMember(username string) []*Message {
 	return messages
 }
 
-func DBInitializeRoomTable() {
+func TableInitRoom() {
 	_, err := Con.Exec(`
 	CREATE TABLE IF NOT EXISTS room (
 		id SERIAL PRIMARY KEY,
@@ -45,6 +45,7 @@ func DBInitializeRoomTable() {
 		description TEXT NOT NULL,
 		owner_id INTEGER NOT NULL,
 		created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
 		FOREIGN KEY (owner_id) REFERENCES users(id)
 	);
 	`)
@@ -58,6 +59,7 @@ func DBInitializeRoomTable() {
 		room_id INTEGER NOT NULL,
 		user_id INTEGER NOT NULL,
 		joined TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+		metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
 		FOREIGN KEY (room_id) REFERENCES rooms(id),
 		FOREIGN KEY (user_id) REFERENCES users(id)
 	);

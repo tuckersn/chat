@@ -13,14 +13,15 @@ type User struct {
 	LastSeen    *int64 `db:"last_seen"`
 }
 
-func DBInitializeUserTable() {
+func TableInitUser() {
 	_, err := Con.Exec(`
-	CREATE TABLE IF NOT EXISTS users (
+	CREATE TABLE IF NOT EXISTS user (
 		id SERIAL PRIMARY KEY,
 		username TEXT NOT NULL,
 		display_name TEXT NOT NULL,
 		joined_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-		last_seen TIMESTAMP WITH TIME ZONE
+		last_seen TIMESTAMP WITH TIME ZONE,
+		metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
 	);
 	`)
 	if err != nil {
@@ -28,7 +29,7 @@ func DBInitializeUserTable() {
 	}
 
 	_, err = Con.Exec(`
-		INSERT INTO users (id, username, display_name)
+		INSERT INTO user (id, username, display_name)
 		VALUES (0, 'admin', 'Administrator')
 		ON CONFLICT DO NOTHING;
 	`)
@@ -38,7 +39,7 @@ func DBInitializeUserTable() {
 
 }
 
-func DBCreateUser(username string, displayName string) {
+func CreateUser(username string, displayName string) {
 
 	if !UserNameRegex.MatchString(username) {
 		panic("Invalid username")
@@ -51,18 +52,18 @@ func DBCreateUser(username string, displayName string) {
 	//TODO: add word filter
 }
 
-func DBGetUser(id int32) *User {
+func GetUser(id int32) *User {
 	var user User
-	err := Con.Get(&user, "SELECT * FROM users WHERE id = $1", id)
+	err := Con.Get(&user, "SELECT * FROM user WHERE id = $1", id)
 	if err != nil {
 		panic(err)
 	}
 	return &user
 }
 
-func DBGetUserByUsername(username string) *User {
+func GetUserByUserName(username string) *User {
 	var user User
-	err := Con.Get(&user, "SELECT * FROM users WHERE username = $1", username)
+	err := Con.Get(&user, "SELECT * FROM user WHERE username = $1", username)
 	if err != nil {
 		panic(err)
 	}
