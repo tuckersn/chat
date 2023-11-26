@@ -11,6 +11,8 @@ import { ServerOverviewAdminPage } from './routes/web/server/ServerOverviewAdmin
 import { UserManagementPage } from './routes/web/server/UserManagementPage.tsx';
 import { NotFoundPage } from './routes/web/NotFoundPage.tsx';
 import { UserListAdminPage } from './routes/web/server/UserListAdminPage.tsx';
+import { NotesPageFrame } from './routes/web/notes/NotesPageFrame.tsx';
+import { NotesDocumentPage } from './routes/web/notes/NotesDocumentPage.tsx';
 
 const root = document.getElementById('app')!;
 
@@ -22,6 +24,10 @@ render(<BrowserRouter>
                 <Route index element={<ChatOverviewPage/>}/>
                 <Route path="id/:chatId" element={<ChatMessagePage/>}/>
                 <Route path="*" element={<NotFoundPage/>}/>
+            </Route>
+            <Route path="notes" element={<NotesPageFrame/>}>
+                <Route index element={<h1>Notes Overview</h1>}/>
+                <Route path="*" element={<NotesDocumentPage/>}/>
             </Route>
             <Route path="server" element={<ServerFrame/>}>
                 <Route index element={<UserOverviewAdminPage/>}/>

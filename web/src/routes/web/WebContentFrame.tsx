@@ -4,11 +4,14 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 
 import styled from "styled-components";
 
-import { GiChatBubble } from "react-icons/gi";
+import { GiBookCover, GiChatBubble, GiServerRack } from "react-icons/gi";
 
 import "../../style-web.scss";
 
 
+export const NavButtonSize = 64;
+export const NavButtonIconSize = 38;
+export const NavBackgroundColor = "rgba(0, 0, 0, 0.5)";
 
 interface NavCategoryProps {
     to: string;
@@ -36,7 +39,14 @@ const NavCategory: FC<NavCategoryProps> = ({
             category[1](to);
             navigate(to);
         }} style={{
-            backgroundColor: active ? "red" : "blue"
+            width: NavButtonSize,
+            height: NavButtonSize,
+            backgroundColor: active ? "red" : "blue",
+            display: "flex",
+            placeItems: "center",
+            placeContent: "center",
+            border: "3px solid black",
+            boxSizing: "border-box"
         }}>
             {icon}
         </div>
@@ -45,35 +55,57 @@ const NavCategory: FC<NavCategoryProps> = ({
             width: "100%",
             flex: 1,
             display: active ? "block" : "none",
-            backgroundColor: "rgba(0, 0, 0, 0.5)"
+            backgroundColor: NavBackgroundColor
         }}>
             {children}
         </div>
     </>;
 }
 
+const NavCategoryLink: FC<HTMLProps<HTMLAnchorElement>> = ({
+    children,
+    ...props
+}) => {
+    return <Link {...props}>
+        {children}
+    </Link>
+}
+
+
+
 export const WebContentFrame: FC = ({children}) => {
 
     const category = useState("/chat");
 
     return (
-        <div class="flex-container">
+        <div class="flex-container flex-min h-fill" style={{
+            height: "100%"
+        }}>
             <div class="flex-min" style={{
                 display: "flex",
                 flexDirection: "column",
-                height: "100%"
+                height: "100%",
+                flex: `0 0 ${NavButtonSize}px`,
             }}>
-                <NavCategory icon={<GiChatBubble/>} to="/chat" category={category}>
-                    <h1>links to chat stuff here</h1>
+                <NavCategory icon={<GiBookCover size={NavButtonIconSize}/>} to="/notes" category={category}>
+                    <NavCategoryLink>
+                        Test
+                    </NavCategoryLink>
                 </NavCategory>
-                <NavCategory icon={<GiChatBubble/>} to="/page" category={category}>
+                <NavCategory icon={<GiChatBubble size={NavButtonIconSize}/>} to="/chat" category={category}>
                     <h1>links to markdown documents in the pages section here</h1>
                 </NavCategory>
-                <NavCategory icon={<GiChatBubble/>} to="/server" category={category}>                
+                <NavCategory icon={<GiServerRack size={NavButtonIconSize}/>} to="/server" category={category}>                
                     <GiChatBubble/>
                 </NavCategory>
             </div>
             <div class="flex-fill">
+                <div style={{
+                    height: NavButtonSize,
+                    backgroundColor: NavBackgroundColor
+                }}>
+                    test
+                </div>
                 <Outlet/>
             </div>
         </div>

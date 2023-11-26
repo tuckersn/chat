@@ -6,7 +6,7 @@ import "github.com/gin-gonic/gin"
 // @Summary creates a page
 // @Schemes
 // @Description creates a page based on it's path
-// @Tags basic
+// @Tags User API
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /user/:userId [get]
@@ -18,7 +18,7 @@ func HttpUserGet(r *gin.Context) {
 // @Summary creates a page
 // @Schemes
 // @Description creates a page based on it's path
-// @Tags basic
+// @Tags User API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
@@ -30,7 +30,7 @@ func HttpUserUpdate(r *gin.Context) {
 // @Summary creates a page
 // @Schemes
 // @Description creates a page based on it's path
-// @Tags basic
+// @Tags User API
 // @Produce json
 // @Success 200 {string} Helloworld
 // @Router /user [post]
@@ -41,7 +41,7 @@ func HttpUserCreate(r *gin.Context) {
 // @Summary deletes a user
 // @Schemes
 // @Description deletes a user based on it's path
-// @Tags basic
+// @Tags User API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld

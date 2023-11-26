@@ -1,25 +1,36 @@
 info:
   contact: {}
 paths:
-  /page/:path:
+  /message/id/:messageId:
     delete:
       consumes:
       - application/json
-      description: deletes a page based on it's path
+      description: deletes a message
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            type: string
-      summary: deletes a page
+      summary: deletes a message
       tags:
-      - basic
+      - Message API
     get:
       consumes:
       - application/json
-      description: returns the content of a page based on it's path
+      description: deletes a message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: get a message
+      tags:
+      - Message API
+  /note/:path:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a note based on it's path
       produces:
       - application/json
       responses:
@@ -27,13 +38,27 @@ paths:
           description: OK
           schema:
             type: string
-      summary: returns the content of a page
+      summary: deletes a note
       tags:
-      - basic
+      - Note API
+    get:
+      consumes:
+      - application/json
+      description: returns the content of a note based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: returns the content of a note
+      tags:
+      - Note API
     post:
       consumes:
       - application/json
-      description: creates a page based on it's path
+      description: creates a note based on it's path
       produces:
       - application/json
       responses:
@@ -41,9 +66,36 @@ paths:
           description: OK
           schema:
             type: string
-      summary: creates a page
+      summary: creates a note
       tags:
-      - basic
+      - Note API
+  /room/:roomId/message:
+    post:
+      consumes:
+      - application/json
+      description: deletes a message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: send a message to a given room
+      tags:
+      - Message API
+      - Room API
+  /server/ping:
+    get:
+      consumes:
+      - application/json
+      description: says hello to the server, used for overview page
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: ping the server, used for overview page
+      tags:
+      - Server API
   /user:
     post:
       description: creates a page based on it's path
@@ -56,7 +108,7 @@ paths:
             type: string
       summary: creates a page
       tags:
-      - basic
+      - User API
   /user/:userId:
     delete:
       consumes:
@@ -71,7 +123,7 @@ paths:
             type: string
       summary: deletes a user
       tags:
-      - basic
+      - User API
     get:
       description: creates a page based on it's path
       produces:
@@ -83,7 +135,7 @@ paths:
             type: string
       summary: creates a page
       tags:
-      - basic
+      - User API
     post:
       consumes:
       - application/json
@@ -97,5 +149,76 @@ paths:
             type: string
       summary: creates a page
       tags:
-      - basic
+      - User API
+  /webhook:
+    get:
+      consumes:
+      - application/json
+      description: returns information about a webhook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: list all webhooks controlled by you
+      tags:
+      - Webhook API
+    post:
+      consumes:
+      - application/json
+      description: returns information about a webhook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: create a new webhook, if 2FA is enabled it's required
+      tags:
+      - Webhook API
+  /webhook/:webhookId:
+    delete:
+      consumes:
+      - application/json
+      description: returns information about a webhook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: delete's a webhook, if 2FA is set to strict it's required
+      tags:
+      - Webhook API
+    get:
+      consumes:
+      - application/json
+      description: returns information about a webhook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: get's the details of a given webhook
+      tags:
+      - Webhook API
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: provided details overwrite the existing webhook
+      tags:
+      - Webhook API
 swagger: "2.0"

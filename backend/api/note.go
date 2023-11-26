@@ -11,38 +11,38 @@ import (
 	"github.com/tuckersn/chatbackend/db"
 )
 
-var pagesDirectory string = func() string {
+var notesDirectory string = func() string {
 	env := os.Getenv("PAGES_DIRECTORY")
 	if env == "" {
 		working_dir, err := os.Getwd()
 		if err != nil {
 			panic(err)
 		}
-		env = path.Join(working_dir, "pages")
+		env = path.Join(working_dir, "notes")
 		return env
 	}
 	return env
 }()
 
-// HttpPageGet godoc
-// @Summary returns the content of a page
+// HttpNoteGet godoc
+// @Summary returns the content of a note
 // @Schemes
-// @Description returns the content of a page based on it's path
-// @Tags basic
+// @Description returns the content of a note based on it's path
+// @Tags Note API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /page/:path [get]
-func HttpPageGet(c *gin.Context) {
+// @Router /note/:path [get]
+func HttpNoteGet(c *gin.Context) {
 
 	filePath := c.Param("path")
-	if !db.PagePathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
+	if !db.NotePathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
 		c.JSON(404, gin.H{
 			"message": "Not Found, invalid path",
 		})
 		return
 	}
-	fileSystemPath := path.Join(pagesDirectory, filePath)
+	fileSystemPath := path.Join(notesDirectory, filePath)
 	fileSystemPath = path.Clean(fileSystemPath)
 	file, err := os.Stat(fileSystemPath)
 
@@ -102,26 +102,26 @@ func HttpPageGet(c *gin.Context) {
 	}
 }
 
-// HttpPagePost godoc
-// @Summary creates a page
+// HttpNotePost godoc
+// @Summary creates a note
 // @Schemes
-// @Description creates a page based on it's path
-// @Tags basic
+// @Description creates a note based on it's path
+// @Tags Note API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /page/:path [post]
-func HttpPagePost(c *gin.Context) {
+// @Router /note/:path [post]
+func HttpNotePost(c *gin.Context) {
 }
 
 // HttpPageDelete godoc
-// @Summary deletes a page
+// @Summary deletes a note
 // @Schemes
-// @Description deletes a page based on it's path
-// @Tags basic
+// @Description deletes a note based on it's path
+// @Tags Note API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /page/:path [delete]
-func HttpPageDelete(c *gin.Context) {
+// @Router /note/:path [delete]
+func HttpNoteDelete(c *gin.Context) {
 }

@@ -15,32 +15,31 @@ func (m *Message) Author() *User {
 }
 
 func TableInitMessage() {
-	_, err := Con.Exec(`
-	CREATE TABLE IF NOT EXISTS messages (
-		id SERIAL PRIMARY KEY,
-		key TEXT NOT NULL,
-		room_id INTEGER NOT NULL,
-		author_id INTEGER NOT NULL,
-		content TEXT NOT NULL,
-		created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-		metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
-		FOREIGN KEY (author_id) REFERENCES users(id),
-		FOREIGN KEY (room_id) REFERENCES rooms(id)
-	);`)
+	Con.MustExec(`
+		CREATE TABLE IF NOT EXISTS message (
+			id SERIAL PRIMARY KEY,
+			key TEXT NOT NULL,
+			room_id INTEGER NOT NULL,
+			author_id INTEGER NOT NULL,
+			content TEXT NOT NULL,
+			created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+			metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
+			FOREIGN KEY (author_id) REFERENCES user_identity(id),
+			FOREIGN KEY (room_id) REFERENCES room(id)
+		);
+	`)
+}
+
+func InsertMessage(room_id int32, author_id int32, content string) {
+	_, err := Con.NamedExec(`
+		INSERT INTO message (room_id, author_id, content)
+		VALUES (:room_id, :author_id, :content)
+	`, map[string]interface{}{
+		"room_id":   room_id,
+		"author_id": author_id,
+		"content":   content,
+	})
 	if err != nil {
 		panic(err)
 	}
-}
-
-func CreateMessage(username string, displayName string) {
-
-	if !UserNameRegex.MatchString(username) {
-		panic("Invalid username")
-	}
-
-	if !DisplayNameRegex.MatchString(displayName) {
-		panic("Invalid display name")
-	}
-
-	//TODO: add word filter
 }

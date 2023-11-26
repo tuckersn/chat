@@ -20,24 +20,22 @@ type EmbeddingsRecord struct {
 OpenAI Embeddings
 only enabled if pgvector is enabled and OpenAI key is provided
 https://platform.openai.com/docs/guides/embeddings
+
+table name is plural since every record contains 1536 floats
 */
 func TableInitOpenAIEmbeddings() {
-	var schema = `
-	CREATE TABLE IF NOT EXISTS openai_embeddings (
-		id SERIAL PRIMARY KEY,
-		embeddings VECTOR(1536) NOT NULL,
-		table_name TEXT NOT NULL,
-		table_col TEXT NOT NULL,
-		table_id INTEGER NOT NULL,
-		model TEXT NOT NULL,
-		created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-		UNIQUE(table_name, table_col, table_id)
-	);
-	`
-	_, err := Con.Exec(schema)
-	if err != nil {
-		panic(err)
-	}
+	Con.MustExec(`
+		CREATE TABLE IF NOT EXISTS openai_embeddings (
+			id SERIAL PRIMARY KEY,
+			embeddings VECTOR(1536) NOT NULL,
+			table_name TEXT NOT NULL,
+			table_col TEXT NOT NULL,
+			table_id INTEGER NOT NULL,
+			model TEXT NOT NULL,
+			created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE(table_name, table_col, table_id)
+		);
+	`)
 }
 
 func GetOrVectorizeRecordCustom(

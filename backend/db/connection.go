@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/tuckersn/chatbackend/openai"
 )
 
 var Con *sqlx.DB = nil
@@ -19,9 +20,18 @@ type Table struct {
 // In-order of initialization
 var Tables = []Table{
 	{"databast_settings", TableInitDatabaseSettings},
-	{"users", TableInitUser},
-	{"rooms", TableInitRoom},
-	{"messages", TableInitMessage},
+	{"user", TableInitUser},
+	{"room", TableInitRoom},
+	{"message", TableInitMessage},
+	{"message_attachment", TableInitMessageAttachment},
+	{"note", TableInitNote},
+	{"login", TableInitLogin},
+	{"webhook", TableInitWebhook},
+	{"webhook_result", TableInitWebhookResult},
+}
+
+func IsPGVectorEnabled() bool {
+	return os.Getenv("CR_PG_PGVECTOR_ENABLED") == "true"
 }
 
 func InitializeDatabaseConnection() {
@@ -100,14 +110,17 @@ func InitializeDatabaseConnection() {
 		table.Init()
 	}
 
-	if os.Getenv("CR_PG_PGVECTOR") == "true" {
-		log.Println("pgvector is enabled for vector similarity search")
-		_, err = Con.Exec("CREATE EXTENSION IF NOT EXISTS pgvector")
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		if os.Getenv("OPENAI_API_KEY") != "" {
+	if IsPGVectorEnabled() {
+		log.Println("pgvector is enabled, enabling vector similarity search and vector fields")
+		if openai.APIKey() != "" {
+			log.Println("OpenAI API key is set, enabling OpenAI embeddings (vector fields)")
+			_, err = Con.Exec(`
+				CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+			`)
+			if err != nil {
+				log.Println("Error trying to enable pgvector extension")
+				log.Println(err)
+			}
 			TableInitOpenAIEmbeddings()
 		}
 	}

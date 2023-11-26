@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/page/:path": {
+        "/message/id/:messageId": {
             "get": {
-                "description": "returns the content of a page based on it's path",
+                "description": "deletes a message",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,9 +25,47 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "Message API"
                 ],
-                "summary": "returns the content of a page",
+                "summary": "get a message",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "description": "deletes a message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message API"
+                ],
+                "summary": "deletes a message",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/note/:path": {
+            "get": {
+                "description": "returns the content of a note based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Note API"
+                ],
+                "summary": "returns the content of a note",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -38,7 +76,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "creates a page based on it's path",
+                "description": "creates a note based on it's path",
                 "consumes": [
                     "application/json"
                 ],
@@ -46,9 +84,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "Note API"
                 ],
-                "summary": "creates a page",
+                "summary": "creates a note",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -59,7 +97,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "deletes a page based on it's path",
+                "description": "deletes a note based on it's path",
                 "consumes": [
                     "application/json"
                 ],
@@ -67,15 +105,56 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "Note API"
                 ],
-                "summary": "deletes a page",
+                "summary": "deletes a note",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "string"
                         }
+                    }
+                }
+            }
+        },
+        "/room/:roomId/message": {
+            "post": {
+                "description": "deletes a message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message API",
+                    "Room API"
+                ],
+                "summary": "send a message to a given room",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/server/ping": {
+            "get": {
+                "description": "says hello to the server, used for overview page",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Server API"
+                ],
+                "summary": "ping the server, used for overview page",
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -87,7 +166,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "User API"
                 ],
                 "summary": "creates a page",
                 "responses": {
@@ -107,7 +186,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "User API"
                 ],
                 "summary": "creates a page",
                 "responses": {
@@ -128,7 +207,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "User API"
                 ],
                 "summary": "creates a page",
                 "responses": {
@@ -149,9 +228,117 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "basic"
+                    "User API"
                 ],
                 "summary": "deletes a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/webhook": {
+            "get": {
+                "description": "returns information about a webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook API"
+                ],
+                "summary": "list all webhooks controlled by you",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "returns information about a webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook API"
+                ],
+                "summary": "create a new webhook, if 2FA is enabled it's required",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/webhook/:webhookId": {
+            "get": {
+                "description": "returns information about a webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook API"
+                ],
+                "summary": "get's the details of a given webhook",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook API"
+                ],
+                "summary": "provided details overwrite the existing webhook",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "returns information about a webhook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook API"
+                ],
+                "summary": "delete's a webhook, if 2FA is set to strict it's required",
                 "responses": {
                     "200": {
                         "description": "OK",

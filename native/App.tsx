@@ -8,7 +8,7 @@
 import React, { useEffect } from 'react';
 import type {PropsWithChildren} from 'react';
 
-import { PagesScreen } from './screens/PagesScreen';
+import { NotesScreen } from './screens/NotesScreen';
 import { ServerScreen } from './screens/ServerScreen';
 import { Button, Keyboard, Pressable, Text, View } from 'react-native';
 import { Styles } from './Style';
@@ -78,7 +78,7 @@ export default function App() {
 			flex: 1,
 		}}>
 			{
-				activeScreen === 'pages' ? <PagesScreen/> : null
+				activeScreen === 'pages' ? <NotesScreen/> : null
 			}
 			{
 				activeScreen === 'server'	? <ServerScreen/> : null

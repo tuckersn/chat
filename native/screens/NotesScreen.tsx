@@ -19,7 +19,7 @@ export interface MarkdownScreenState {
 
 export type MarkdownScreenProps = ScreenProps<MarkdownScreenState>;
 
-export function PagesScreen(): JSX.Element {
+export function NotesScreen(): JSX.Element {
 
 	return (
 		<View style={{
