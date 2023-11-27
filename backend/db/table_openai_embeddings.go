@@ -36,6 +36,11 @@ func TableInitOpenAIEmbeddings() {
 			UNIQUE(table_name, table_col, table_id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_embeddings ON openai_embeddings (embeddings);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_name ON openai_embeddings (table_name);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_col ON openai_embeddings (table_col);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_id ON openai_embeddings (table_id);`)
 }
 
 func GetOrVectorizeRecordCustom(

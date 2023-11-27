@@ -15,6 +15,9 @@ func TableInitWebhookResult() {
 			FOREIGN KEY (trigerred_by) REFERENCES user_identity(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_webhook_id ON webhook_result (webhook_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_trigerred_by ON webhook_result (trigerred_by);`)
 }
 
 func InsertWebhookResult(

@@ -27,6 +27,10 @@ func TableInitDatabaseSettings() {
 		);
 	`)
 
+	Con.MustExec(`
+		CREATE INDEX IF NOT EXISTS idx_database_settings_key ON database_settings (key);
+	`)
+
 	SetDatabaseSetting("version", 1)
 
 	if os.Getenv("PRODUCTION") != "" {

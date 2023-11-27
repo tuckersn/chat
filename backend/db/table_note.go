@@ -39,6 +39,9 @@ func TableInitNote() {
 			FOREIGN KEY (user_id) REFERENCES user_identity(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_member_note_id ON note_member (note_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_member_user_id ON note_member (user_id);`)
 }
 
 func InsertNote(path string, content string, owner_id int32) {

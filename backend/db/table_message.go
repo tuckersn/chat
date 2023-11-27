@@ -1,6 +1,6 @@
 package db
 
-type Message struct {
+type RecordMessage struct {
 	Id       int32  `db:"id"`
 	Key      string `db:"key"`
 	RoomId   int32  `db:"room_id"`
@@ -10,8 +10,8 @@ type Message struct {
 	Metadata string `db:"metadata"`
 }
 
-func (m *Message) Author() *User {
-	return GetUser(m.AuthorId)
+func (m *RecordMessage) Author() *User {
+	return GetUserById(m.AuthorId)
 }
 
 func TableInitMessage() {
@@ -28,6 +28,10 @@ func TableInitMessage() {
 			FOREIGN KEY (room_id) REFERENCES room(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_room_id ON message (room_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_author_id ON message (author_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_key ON message (key);`)
 }
 
 func InsertMessage(room_id int32, author_id int32, content string) {
@@ -43,3 +47,7 @@ func InsertMessage(room_id int32, author_id int32, content string) {
 		panic(err)
 	}
 }
+
+// func InsertMessageSafe(room_id int32, author_id int32, content string) *Message {
+
+// }

@@ -1,43 +1,23 @@
 package db
 
-type Room struct {
+type RecordRoom struct {
 	Id          int32  `db:"id"`
 	Name        string `db:"name"`
 	Description string `db:"description"`
 	OwnerId     int32  `db:"owner_id"`
 }
 
-type RoomMember struct {
+type RecordRoomMember struct {
 	Id     int32 `db:"id"`
 	RoomId int32 `db:"room_id"`
 	UserId int32 `db:"user_id"`
 	Joined int64 `db:"joined"`
 }
 
-func (r *Room) Owner() *User {
-	return GetUser(r.OwnerId)
-}
-
-func (r *Room) Members() []*User {
-	var users []*User
-	err := Con.Select(&users, "SELECT * FROM user WHERE id IN (SELECT user_id FROM room_members WHERE room_id = $1)", r.Id)
-	if err != nil {
-		panic(err)
-	}
-	return users
-}
-
-// is user member of this room
-func (r *Room) IsMember(username string) []*Message {
-	var messages []*Message
-	err := Con.Select(&messages, "SELECT * FROM message WHERE room_id = $1", r.Id)
-	if err != nil {
-		panic(err)
-	}
-	return messages
-}
-
 func TableInitRoom() {
+	/**
+	 * room
+	 */
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS room (
 			id SERIAL PRIMARY KEY,
@@ -50,6 +30,12 @@ func TableInitRoom() {
 		);
 	`)
 
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_owner_id ON room (owner_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_name ON room (name);`)
+
+	/**
+	 * room_member
+	 */
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS room_member (
 			id SERIAL PRIMARY KEY,
@@ -61,6 +47,9 @@ func TableInitRoom() {
 			FOREIGN KEY (user_id) REFERENCES user_identity(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_member_room_id ON room_member (room_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_member_user_id ON room_member (user_id);`)
 }
 
 func InsertRoom(name string, description string, owner_id int32) {
@@ -75,4 +64,43 @@ func InsertRoom(name string, description string, owner_id int32) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func IsRoomMember(room_id int32, user_id int32) bool {
+	var count int32
+	err := Con.Get(&count, "SELECT COUNT(*) FROM room_member WHERE room_id = $1 AND user_id = $2", room_id, user_id)
+	if err != nil {
+		panic(err)
+	}
+	return count > 0
+}
+
+func (r *RecordRoom) IsMemberById(id int32) bool {
+	var count int32
+	err := Con.Get(&count,
+		"SELECT COUNT(*) FROM room_member WHERE room_id = $1 AND user_id = $2",
+		r.Id,
+		id,
+	)
+	if err != nil {
+		panic(err)
+	}
+	return count > 0
+}
+
+func (r *RecordRoom) IsMember(username string) bool {
+	return r.IsMemberById(GetUser(username).Id)
+}
+
+func (r *RecordRoom) Owner() *User {
+	return GetUserById(r.OwnerId)
+}
+
+func (r *RecordRoom) Members() []*User {
+	var users []*User
+	err := Con.Select(&users, "SELECT * FROM user WHERE id IN (SELECT user_id FROM room_members WHERE room_id = $1)", r.Id)
+	if err != nil {
+		panic(err)
+	}
+	return users
 }

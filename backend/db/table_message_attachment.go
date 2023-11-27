@@ -18,4 +18,8 @@ func TableInitMessageAttachment() {
 			FOREIGN KEY (room_id) REFERENCES room(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_message_id ON message_attachment (message_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_user_id ON message_attachment (user_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_room_id ON message_attachment (room_id);`)
 }

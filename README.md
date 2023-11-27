@@ -1,6 +1,7 @@
-# Cove
-Self-hosted instant messaging, markdown documents, and other tools.
+# Self-hosted Chat
+Work in-progress chat platform.
 
-Includes
-- React Native Android App
-- Go backend
+## Goals
+- easy self-hosting
+- performance
+- simplicity

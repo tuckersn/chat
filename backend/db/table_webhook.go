@@ -30,6 +30,9 @@ func TableInitWebhook() {
 			FOREIGN KEY (owner_id) REFERENCES user_identity(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_owner_id ON webhook (owner_id);`)
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_name ON webhook (name);`)
 }
 
 func InsertWebhook(name string, url string, owner_id int32) {

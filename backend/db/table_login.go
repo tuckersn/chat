@@ -19,6 +19,8 @@ func TableInitLogin() {
 			FOREIGN KEY (user_id) REFERENCES user_identity(id)
 		);
 	`)
+
+	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_login_user_id ON login (user_id);`)
 }
 
 func InsertLogin(user_id int32, ip string) (any, error) {
