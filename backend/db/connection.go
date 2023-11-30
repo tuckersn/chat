@@ -20,11 +20,12 @@ type Table struct {
 // In-order of initialization
 var Tables = []Table{
 	{"databast_settings", TableInitDatabaseSettings},
-	{"user", TableInitUser},
+	{"user_identity", TableInitUserIdentity},
 	{"room", TableInitRoom},
 	{"message", TableInitMessage},
 	{"message_attachment", TableInitMessageAttachment},
 	{"note", TableInitNote},
+	{"user_identity_google", TableInitUserIdentityGoogle},
 	{"login", TableInitLogin},
 	{"webhook", TableInitWebhook},
 	{"webhook_result", TableInitWebhookResult},
@@ -34,7 +35,14 @@ func IsPGVectorEnabled() bool {
 	return os.Getenv("CR_PG_PGVECTOR_ENABLED") == "true"
 }
 
+var databaseInitialized = false
+
 func InitializeDatabaseConnection() {
+
+	if databaseInitialized {
+		return
+	}
+	databaseInitialized = true
 
 	var log = log.New(os.Stdout, "[START][DB]", log.LstdFlags|log.Lshortfile)
 

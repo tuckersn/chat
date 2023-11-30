@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tuckersn/chatbackend/db"
+	"github.com/tuckersn/chatbackend/util"
 )
 
 var notesDirectory string = func() string {
@@ -24,6 +25,25 @@ var notesDirectory string = func() string {
 	return env
 }()
 
+func ValidateNotePath(notePath string) byte {
+	if !db.NotePathRegex.MatchString(notePath) && fs.ValidPath(notePath) {
+		return util.FILE_INVALID_PATH
+	}
+	fileSystemPath := path.Join(notesDirectory, notePath)
+	fileSystemPath = path.Clean(fileSystemPath)
+	file, err := os.Stat(fileSystemPath)
+	if errors.Is(err, fs.ErrNotExist) {
+		return util.FILE_NOT_FOUND
+	}
+	if err != nil {
+		return util.FILE_UNKNOWN_ERROR
+	}
+	if file.IsDir() {
+		return util.FILE_IS_DIR
+	}
+	return util.FILE_EXISTS
+}
+
 // HttpNoteGet godoc
 // @Summary returns the content of a note
 // @Schemes
@@ -35,37 +55,35 @@ var notesDirectory string = func() string {
 // @Router /note/:path [get]
 func HttpNoteGet(c *gin.Context) {
 
-	filePath := c.Param("path")
-	if !db.NotePathRegex.MatchString(filePath) && fs.ValidPath(filePath) {
-		c.JSON(404, gin.H{
-			"message": "Not Found, invalid path",
-		})
-		return
-	}
-	fileSystemPath := path.Join(notesDirectory, filePath)
-	fileSystemPath = path.Clean(fileSystemPath)
-	file, err := os.Stat(fileSystemPath)
-
-	if errors.Is(err, fs.ErrNotExist) {
+	notePath := c.Param("path")
+	notePathStatus := ValidateNotePath(notePath)
+	switch notePathStatus {
+	case util.FILE_NOT_FOUND:
 		c.JSON(404, gin.H{
 			"message": "Not Found, does not exist",
-			"path":    filePath,
+			"path":    notePath,
 		})
 		return
-	}
-	if err != nil {
+	case util.FILE_INVALID_PATH:
+		c.JSON(404, gin.H{
+			"message": "Not Found, invalid path",
+			"path":    notePath,
+		})
+		return
+	case util.FILE_IS_DIR:
+	case util.FILE_EXISTS:
+		break
+	default:
 		c.JSON(500, gin.H{
 			"message": "Internal Server Error",
-			"path":    filePath,
+			"path":    notePath,
 		})
-		log.Println(err)
 		return
 	}
 
-	if file.IsDir() {
-		// returns a list of all files in the directory
+	if notePathStatus == util.FILE_IS_DIR {
 		files := make([]string, 0)
-		err := fs.WalkDir(os.DirFS(filePath), ".", func(path string, d fs.DirEntry, err error) error {
+		err := fs.WalkDir(os.DirFS(notePath), ".", func(path string, d fs.DirEntry, err error) error {
 			if d.IsDir() {
 				return nil
 			}
@@ -75,28 +93,28 @@ func HttpNoteGet(c *gin.Context) {
 		if err != nil {
 			c.JSON(500, gin.H{
 				"message": "Internal Server Error reading directory",
-				"path":    filePath,
+				"path":    notePath,
 			})
 			log.Println(err)
 			return
 		}
 		c.JSON(200, gin.H{
-			"path":  filePath,
+			"path":  notePath,
 			"files": files,
 		})
 	} else {
-		content, err := os.ReadFile(fileSystemPath)
+		content, err := os.ReadFile(notePath)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"message": "Internal Server Error reading file",
-				"path":    filePath,
+				"path":    notePath,
 			})
 			log.Println(err)
 			return
 		}
 		c.JSON(200, gin.H{
 			"message": "pong",
-			"path":    filePath,
+			"path":    notePath,
 			"content": content,
 		})
 	}

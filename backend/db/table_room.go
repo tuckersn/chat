@@ -89,7 +89,11 @@ func (r *RecordRoom) IsMemberById(id int32) bool {
 }
 
 func (r *RecordRoom) IsMember(username string) bool {
-	return r.IsMemberById(GetUser(username).Id)
+	user, err := GetUser(username)
+	if err != nil {
+		panic(err)
+	}
+	return r.IsMemberById(user.Id)
 }
 
 func (r *RecordRoom) Owner() *User {

@@ -51,9 +51,9 @@ func httpServer() {
 		userRouter := apiRouter.Group("/user")
 		{
 			userRouter.POST("/", api.HttpUserCreate)
-			userRouter.GET("/id/*userId", api.HttpUserGet)
-			userRouter.POST("/id/*userId", api.HttpUserUpdate)
-			userRouter.DELETE("/id/*userId", api.HttpUserDelete)
+			userRouter.GET("/id/*username", api.HttpUserGet)
+			userRouter.POST("/id/*username", api.HttpUserUpdate)
+			userRouter.DELETE("/id/*username", api.HttpUserDelete)
 		}
 		serverRouter := apiRouter.Group("/server")
 		{

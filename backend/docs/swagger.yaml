@@ -1,3 +1,20 @@
+definitions:
+  api.UserCreateRequest:
+    properties:
+      admin:
+        type: boolean
+      displayName:
+        type: string
+      username:
+        type: string
+    type: object
+  api.UserGetResponse:
+    properties:
+      displayName:
+        type: string
+      username:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -98,7 +115,16 @@ paths:
       - Server API
   /user:
     post:
-      description: creates a page based on it's path
+      consumes:
+      - application/json
+      description: creates a new user
+      parameters:
+      - description: User creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserCreateRequest'
       produces:
       - application/json
       responses:
@@ -106,10 +132,10 @@ paths:
           description: OK
           schema:
             type: string
-      summary: creates a page
+      summary: create a new user
       tags:
       - User API
-  /user/:userId:
+  /user/id/:userId:
     delete:
       consumes:
       - application/json
@@ -124,18 +150,6 @@ paths:
       summary: deletes a user
       tags:
       - User API
-    get:
-      description: creates a page based on it's path
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: creates a page
-      tags:
-      - User API
     post:
       consumes:
       - application/json
@@ -148,6 +162,35 @@ paths:
           schema:
             type: string
       summary: creates a page
+      tags:
+      - User API
+  /user/id/:username:
+    get:
+      consumes:
+      - application/json
+      description: retrieves information about the user specified by the username
+      parameters:
+      - description: Username of the user to retrieve
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information
+          schema:
+            $ref: '#/definitions/api.UserGetResponse'
+        "400":
+          description: Invalid username
+          schema:
+            type: string
+        "500":
+          description: User not found
+          schema:
+            type: string
+      summary: get a user's info
       tags:
       - User API
   /webhook:

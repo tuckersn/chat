@@ -161,14 +161,28 @@ const docTemplate = `{
         },
         "/user": {
             "post": {
-                "description": "creates a page based on it's path",
+                "description": "creates a new user",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "User API"
                 ],
-                "summary": "creates a page",
+                "summary": "create a new user",
+                "parameters": [
+                    {
+                        "description": "User creation request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.UserCreateRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -179,25 +193,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/:userId": {
-            "get": {
-                "description": "creates a page based on it's path",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "creates a page",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
+        "/user/id/:userId": {
             "post": {
                 "description": "creates a page based on it's path",
                 "consumes": [
@@ -234,6 +230,50 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/id/:username": {
+            "get": {
+                "description": "retrieves information about the user specified by the username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "get a user's info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username of the user to retrieve",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User information",
+                        "schema": {
+                            "$ref": "#/definitions/api.UserGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid username",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "User not found",
                         "schema": {
                             "type": "string"
                         }
@@ -346,6 +386,33 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.UserCreateRequest": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.UserGetResponse": {
+            "type": "object",
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }

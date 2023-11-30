@@ -1,22 +1,26 @@
 package db
 
 import (
+	"errors"
 	"regexp"
+	"time"
 )
 
 var UserNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 var DisplayNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_ ]+$`)
 
 type User struct {
-	Id          int32  `db:"id"`
-	Key         string `db:"key"`
-	Username    string `db:"username"`
-	DisplayName string `db:"display_name"`
-	JoinedTime  int64  `db:"joined_time"`
-	LastSeen    *int64 `db:"last_seen"`
+	Id          int32      `db:"id"`
+	Key         string     `db:"key"`
+	Username    string     `db:"username"`
+	DisplayName string     `db:"display_name"`
+	JoinedTime  time.Time  `db:"joined_time"`
+	LastSeen    *time.Time `db:"last_seen"`
+	Admin       bool       `db:"admin"`
+	Metadata    string     `db:"metadata"`
 }
 
-func TableInitUser() {
+func TableInitUserIdentity() {
 
 	/**
 	 * user_identity
@@ -60,26 +64,34 @@ func TableInitUser() {
 	MakeUserAdmin("admin")
 }
 
-func InsertUser(username string, displayName string) {
+func InsertUser(username string, displayName string) (*User, error) {
 	if !UserNameRegex.MatchString(username) {
-		panic("Invalid username")
+		return nil, errors.New("Invalid username")
 	}
 
 	if !DisplayNameRegex.MatchString(displayName) {
-		panic("Invalid display name")
+		return nil, errors.New("Invalid display name")
 	}
 
-	_, err := Con.NamedExec(`
+	rows, err := Con.NamedQuery(`
 		INSERT INTO user_identity (username, display_name)
 		VALUES (:username, :display_name)
+		RETURNING *
 	`, map[string]interface{}{
 		"username":     username,
 		"display_name": displayName,
 	})
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
+	var user User
+	for rows.Next() {
+		err = rows.StructScan(&user)
+		return &user, err
+	}
+	return nil, errors.New("Failed to insert user")
 }
 
 func InsertAdmin(username string, displayName string) {
@@ -113,13 +125,13 @@ func GetUserById(id int32) *User {
 	return &user
 }
 
-func GetUser(username string) *User {
+func GetUser(username string) (*User, error) {
 	var user User
 	err := Con.Get(&user, "SELECT * FROM user_identity WHERE username = $1", username)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &user
+	return &user, nil
 }
 
 func MakeUserAdmin(username string) {
@@ -136,4 +148,14 @@ func IsAdmin(username string) bool {
 		panic(err)
 	}
 	return count > 0
+}
+
+func DeleteUser(username string) error {
+	_, err := Con.Exec("DELETE FROM user_identity WHERE username = $1", username)
+	return err
+}
+
+func DeleteUserById(id int32) error {
+	_, err := Con.Exec("DELETE FROM user_identity WHERE id = $1", id)
+	return err
 }
