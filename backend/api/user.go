@@ -32,7 +32,7 @@ func ValidateDisplayName(displayName string) bool {
 // @Success 200 {object} UserGetResponse "User information"
 // @Failure 400 {string} string "Invalid username"
 // @Failure 500 {string} string "User not found"
-// @Router /user/id/:username [get]
+// @Router /api/user/id/:username [get]
 func HttpUserGet(c *gin.Context) {
 	username := c.Param("username")
 	if !(ValidateUsername(username)) {
@@ -61,7 +61,7 @@ func HttpUserGet(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /user/id/:userId [post]
+// @Router /api/user/id/:userId [post]
 func HttpUserUpdate(r *gin.Context) {
 
 }
@@ -86,7 +86,7 @@ func UserCreate(username string, displayName string) (*db.User, error) {
 // @Produce json
 // @Param body body UserCreateRequest true "User creation request"
 // @Success 200 {string} HttpUserCreateRequest
-// @Router /user [post]
+// @Router /api/user [post]
 func HttpUserCreate(c *gin.Context) {
 	input, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -145,7 +145,7 @@ func HttpUserCreate(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /user/id/:username [delete]
+// @Router /api/user/id/:username [delete]
 func HttpUserDelete(r *gin.Context) {
 
 }

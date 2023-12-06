@@ -9,6 +9,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/tuckersn/chatbackend/db"
 	"github.com/tuckersn/chatbackend/openai"
+	"github.com/tuckersn/chatbackend/util"
 )
 
 func main() {
@@ -18,8 +19,12 @@ func main() {
 	logger.Println("Loading env file")
 	err := godotenv.Load()
 	if err != nil {
-		logger.Fatal("Error loading .env file")
+		logger.Println("Error loading .env file")
+		panic(err)
 	}
+
+	fmt.Println("Storage dir: " + util.GetStorageDir(""))
+	util.CreateStorageDirectoryIfNotExists()
 
 	logger.Println("Initializing database connection")
 	db.InitializeDatabaseConnection()

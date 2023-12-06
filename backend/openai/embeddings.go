@@ -43,6 +43,9 @@ func GenerateEmbeddings(content string) (*EmbeddingsResponse, error) {
 	}
 
 	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	data, _, _, err = jsonparser.Get(data, "data")
 	if err != nil {
 		return nil, err

@@ -12,7 +12,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200
-// @Router /message/id/:messageId [get]
+// @Router /api/message/id/:messageId [get]
 func HttpMessageGet(c *gin.Context) {
 }
 
@@ -24,7 +24,7 @@ func HttpMessageGet(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Router /message/id/:messageId [delete]
+// @Router /api/message/id/:messageId [delete]
 func HttpMessageDelete(c *gin.Context) {
 }
 
@@ -36,6 +36,6 @@ func HttpMessageDelete(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200
-// @Router /room/:roomId/message [post]
+// @Router /api/room/:roomId/message [post]
 func HttpMessageSend(c *gin.Context) {
 }

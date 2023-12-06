@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/message/id/:messageId": {
+        "/api/message/id/:messageId": {
             "get": {
                 "description": "deletes a message",
                 "consumes": [
@@ -53,7 +53,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/note/:path": {
+        "/api/note/:path": {
             "get": {
                 "description": "returns the content of a note based on it's path",
                 "consumes": [
@@ -74,51 +74,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "creates a note based on it's path",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Note API"
-                ],
-                "summary": "creates a note",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "deletes a note based on it's path",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Note API"
-                ],
-                "summary": "deletes a note",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
-        "/room/:roomId/message": {
+        "/api/room/:roomId/message": {
             "post": {
                 "description": "deletes a message",
                 "consumes": [
@@ -139,7 +97,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/server/ping": {
+        "/api/server/ping": {
             "get": {
                 "description": "says hello to the server, used for overview page",
                 "consumes": [
@@ -159,7 +117,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user": {
+        "/api/user": {
             "post": {
                 "description": "creates a new user",
                 "consumes": [
@@ -193,7 +151,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/id/:userId": {
+        "/api/user/id/:userId": {
             "post": {
                 "description": "creates a page based on it's path",
                 "consumes": [
@@ -214,30 +172,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "deletes a user based on it's path",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User API"
-                ],
-                "summary": "deletes a user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         },
-        "/user/id/:username": {
+        "/api/user/id/:username": {
             "get": {
                 "description": "retrieves information about the user specified by the username",
                 "consumes": [
@@ -279,9 +216,30 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "deletes a user based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "deletes a user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
-        "/webhook": {
+        "/api/webhook": {
             "get": {
                 "description": "returns information about a webhook",
                 "consumes": [
@@ -325,7 +283,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/webhook/:webhookId": {
+        "/api/webhook/:webhookId": {
             "get": {
                 "description": "returns information about a webhook",
                 "consumes": [
@@ -388,9 +346,115 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/login/gitlab": {
+            "get": {
+                "description": "where the user's browser is sent by GitLab after completing the oauth2 flow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "handles GitLab oauth2 callback",
+                "responses": {
+                    "302": {
+                        "description": "Found"
+                    }
+                }
+            }
+        },
+        "/login/gitlab/receiveToken": {
+            "get": {
+                "description": "where the user's browser is sent by GitLab after completing the oauth2 flow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "handles GitLab oauth2 callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The code returned by GitLab",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The state returned by GitLab",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.GitLabReceiveTokenReponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/note/:path": {
+            "post": {
+                "description": "creates a note based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Note API"
+                ],
+                "summary": "creates a note",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deletes a note based on it's path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Note API"
+                ],
+                "summary": "deletes a note",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "api.GitLabReceiveTokenReponse": {
+            "type": "object"
+        },
         "api.UserCreateRequest": {
             "type": "object",
             "properties": {

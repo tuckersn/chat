@@ -1,4 +1,6 @@
 definitions:
+  api.GitLabReceiveTokenReponse:
+    type: object
   api.UserCreateRequest:
     properties:
       admin:
@@ -18,7 +20,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /message/id/:messageId:
+  /api/message/id/:messageId:
     delete:
       consumes:
       - application/json
@@ -43,21 +45,7 @@ paths:
       summary: get a message
       tags:
       - Message API
-  /note/:path:
-    delete:
-      consumes:
-      - application/json
-      description: deletes a note based on it's path
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: deletes a note
-      tags:
-      - Note API
+  /api/note/:path:
     get:
       consumes:
       - application/json
@@ -72,21 +60,7 @@ paths:
       summary: returns the content of a note
       tags:
       - Note API
-    post:
-      consumes:
-      - application/json
-      description: creates a note based on it's path
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: creates a note
-      tags:
-      - Note API
-  /room/:roomId/message:
+  /api/room/:roomId/message:
     post:
       consumes:
       - application/json
@@ -100,7 +74,7 @@ paths:
       tags:
       - Message API
       - Room API
-  /server/ping:
+  /api/server/ping:
     get:
       consumes:
       - application/json
@@ -113,7 +87,7 @@ paths:
       summary: ping the server, used for overview page
       tags:
       - Server API
-  /user:
+  /api/user:
     post:
       consumes:
       - application/json
@@ -135,21 +109,7 @@ paths:
       summary: create a new user
       tags:
       - User API
-  /user/id/:userId:
-    delete:
-      consumes:
-      - application/json
-      description: deletes a user based on it's path
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: deletes a user
-      tags:
-      - User API
+  /api/user/id/:userId:
     post:
       consumes:
       - application/json
@@ -164,7 +124,21 @@ paths:
       summary: creates a page
       tags:
       - User API
-  /user/id/:username:
+  /api/user/id/:username:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a user based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: deletes a user
+      tags:
+      - User API
     get:
       consumes:
       - application/json
@@ -193,7 +167,7 @@ paths:
       summary: get a user's info
       tags:
       - User API
-  /webhook:
+  /api/webhook:
     get:
       consumes:
       - application/json
@@ -222,7 +196,7 @@ paths:
       summary: create a new webhook, if 2FA is enabled it's required
       tags:
       - Webhook API
-  /webhook/:webhookId:
+  /api/webhook/:webhookId:
     delete:
       consumes:
       - application/json
@@ -264,4 +238,74 @@ paths:
       summary: provided details overwrite the existing webhook
       tags:
       - Webhook API
+  /login/gitlab:
+    get:
+      consumes:
+      - application/json
+      description: where the user's browser is sent by GitLab after completing the
+        oauth2 flow
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+      summary: handles GitLab oauth2 callback
+      tags:
+      - Login
+  /login/gitlab/receiveToken:
+    get:
+      consumes:
+      - application/json
+      description: where the user's browser is sent by GitLab after completing the
+        oauth2 flow
+      parameters:
+      - description: The code returned by GitLab
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: The state returned by GitLab
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GitLabReceiveTokenReponse'
+      summary: handles GitLab oauth2 callback
+      tags:
+      - Login
+  /note/:path:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a note based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: deletes a note
+      tags:
+      - Note API
+    post:
+      consumes:
+      - application/json
+      description: creates a note based on it's path
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: creates a note
+      tags:
+      - Note API
 swagger: "2.0"

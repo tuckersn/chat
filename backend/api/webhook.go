@@ -10,7 +10,7 @@ import "github.com/gin-gonic/gin"
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld[]
-// @Router /webhook [get]
+// @Router /api/webhook [get]
 func HttpWebhookList(r *gin.Context) {
 
 }
@@ -23,7 +23,7 @@ func HttpWebhookList(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /webhook [post]
+// @Router /api/webhook [post]
 func HttpWebhookCreate(r *gin.Context) {
 
 }
@@ -36,7 +36,7 @@ func HttpWebhookCreate(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /webhook/:webhookId [get]
+// @Router /api/webhook/:webhookId [get]
 func HttpWebhookGet(r *gin.Context) {
 
 }
@@ -49,7 +49,7 @@ func HttpWebhookGet(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /webhook/:webhookId [delete]
+// @Router /api/webhook/:webhookId [delete]
 func HttpWebhookDelete(r *gin.Context) {
 
 }
@@ -61,7 +61,7 @@ func HttpWebhookDelete(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /webhook/:webhookId [post]
+// @Router /api/webhook/:webhookId [post]
 func HttpWebhookUpdate(r *gin.Context) {
 
 }

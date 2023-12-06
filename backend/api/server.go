@@ -10,7 +10,7 @@ import "github.com/gin-gonic/gin"
 // @Accept json
 // @Produce json
 // @Success 200
-// @Router /server/ping [get]
+// @Router /api/server/ping [get]
 func HttpPing(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "pong",

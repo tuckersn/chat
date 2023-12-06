@@ -7,15 +7,16 @@ import styled from "styled-components";
 import { GiBookCover, GiChatBubble, GiServerRack } from "react-icons/gi";
 
 import "../../style-web.scss";
+import { SearchBar } from "../../components/SearchBar";
 
-
-export const NavButtonSize = 64;
+export const NavButtonHeight = 64;
+export const NavButtonWidth = 128;
 export const NavButtonIconSize = 38;
 export const NavBackgroundColor = "rgba(0, 0, 0, 0.5)";
 
 interface NavCategoryProps {
     to: string;
-    children: JSX.Element;
+    children: React.ReactNode;
     category: [string, (to: string) => void];
     icon: JSX.Element;
 }
@@ -39,8 +40,8 @@ const NavCategory: FC<NavCategoryProps> = ({
             category[1](to);
             navigate(to);
         }} style={{
-            width: NavButtonSize,
-            height: NavButtonSize,
+            width: NavButtonWidth,
+            height: NavButtonHeight,
             backgroundColor: active ? "red" : "blue",
             display: "flex",
             placeItems: "center",
@@ -85,7 +86,7 @@ export const WebContentFrame: FC = ({children}) => {
                 display: "flex",
                 flexDirection: "column",
                 height: "100%",
-                flex: `0 0 ${NavButtonSize}px`,
+                flex: `0 0 ${NavButtonWidth}px`,
             }}>
                 <NavCategory icon={<GiBookCover size={NavButtonIconSize}/>} to="/notes" category={category}>
                     <NavCategoryLink>
@@ -93,18 +94,47 @@ export const WebContentFrame: FC = ({children}) => {
                     </NavCategoryLink>
                 </NavCategory>
                 <NavCategory icon={<GiChatBubble size={NavButtonIconSize}/>} to="/chat" category={category}>
-                    <h1>links to markdown documents in the pages section here</h1>
+                    <button>+</button>
+                    <div>chat1</div>
+                    <div>chat2</div>
+                    <div>chat3</div>
                 </NavCategory>
-                <NavCategory icon={<GiServerRack size={NavButtonIconSize}/>} to="/server" category={category}>                
-                    <GiChatBubble/>
+                <NavCategory icon={<GiServerRack size={NavButtonIconSize}/>} to="/server" category={category}>                                
+                    <div>Overview</div>
+                    <div>Users</div>
+                    <div>Settings</div>
+                    <div>Webhooks</div>
+                    <div>Admin</div>
                 </NavCategory>
             </div>
             <div class="flex-fill">
                 <div style={{
-                    height: NavButtonSize,
-                    backgroundColor: NavBackgroundColor
+                    height: NavButtonHeight,
+                    width: "100%",
+                    backgroundColor: NavBackgroundColor,
+                    display: "flex",
+                    flexDirection: "row",
                 }}>
-                    test
+                    <div style={{
+                        flex: 1,
+                        height: "100%",
+                        display: "flex",
+                        placeItems: "center",
+                        placeContent: "center"
+                    }}>
+                        toolbar section
+                    </div>
+                    <div style={{
+                        flex: 1,
+                        height: "100%",
+                        display: "flex",
+                        placeItems: "center",
+                        placeContent: "center"
+                    }}>
+                        <SearchBar onSearch={(s) => {
+                            console.log("search: ", s);
+                        }}/>
+                    </div>
                 </div>
                 <Outlet/>
             </div>

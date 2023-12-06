@@ -52,7 +52,7 @@ func ValidateNotePath(notePath string) byte {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /note/:path [get]
+// @Router /api/note/:path [get]
 func HttpNoteGet(c *gin.Context) {
 
 	notePath := c.Param("path")
