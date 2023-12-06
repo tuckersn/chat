@@ -16,7 +16,7 @@ type RecordWebhook struct {
 	Created  int64  `db:"created"`
 }
 
-func TableInitWebhook() {
+func TableInitWebhook(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS webhook (
 			id SERIAL PRIMARY KEY,

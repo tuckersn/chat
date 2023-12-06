@@ -18,7 +18,7 @@ func SetDatabaseSetting(key string, value any) {
 /*
 table name is plural since this is basically a string key to json map as a table
 */
-func TableInitDatabaseSettings() {
+func TableInitDatabaseSettings(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS database_settings (
 			key TEXT PRIMARY KEY,

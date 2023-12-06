@@ -1,5 +1,9 @@
 package db
 
+import "github.com/tuckersn/chatbackend/util"
+
+const MESSAGE_KEY_LENGTH = 10
+
 type RecordMessage struct {
 	Id       int32  `db:"id"`
 	Key      string `db:"key"`
@@ -14,7 +18,7 @@ func (m *RecordMessage) Author() *User {
 	return GetUserById(m.AuthorId)
 }
 
-func TableInitMessage() {
+func TableInitMessage(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS message (
 			id SERIAL PRIMARY KEY,
@@ -48,6 +52,57 @@ func InsertMessage(room_id int32, author_id int32, content string) {
 	}
 }
 
-// func InsertMessageSafe(room_id int32, author_id int32, content string) *Message {
+func GetMessageById(id int32) *RecordMessage {
+	var message RecordMessage
+	err := Con.Get(&message, `
+		SELECT * FROM message WHERE id = $1
+	`, id)
+	if err != nil {
+		panic(err)
+	}
+	return &message
 
-// }
+}
+
+func GetMessage(key string) *RecordMessage {
+	var message RecordMessage
+	err := Con.Get(&message, `
+		SELECT * FROM message WHERE key = $1
+	`, key)
+	if err != nil {
+		panic(err)
+	}
+	return &message
+}
+
+func DeleteMessage(key string) {
+	_, err := Con.Exec(`
+		DELETE FROM message WHERE key = $1
+	`, key)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func DeleteMessageById(id int32) {
+	_, err := Con.Exec(`
+		DELETE FROM message WHERE id = $1
+	`, id)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func InsertNewMessage(room_key string, author_id int32, content string) *RecordMessage {
+	var message RecordMessage
+	key := util.RandomString(MESSAGE_KEY_LENGTH, []string{util.ALPHABET_ALL})
+	err := Con.Get(&message, `
+		INSERT INTO message (key, room_id, author_id, content)
+		VALUES ($1, $2, $3, $4)
+		RETURNING *
+	`, key, room_key, author_id, content)
+	if err != nil {
+		panic(err)
+	}
+	return &message
+}

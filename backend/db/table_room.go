@@ -14,7 +14,7 @@ type RecordRoomMember struct {
 	Joined int64 `db:"joined"`
 }
 
-func TableInitRoom() {
+func TableInitRoom(context TableInitContext) {
 	/**
 	 * room
 	 */

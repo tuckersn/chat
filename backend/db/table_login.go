@@ -8,7 +8,7 @@ type RecordLogin struct {
 	Metadata     string `json:"metadata"`
 }
 
-func TableInitLogin() {
+func TableInitLogin(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS login (
 			id SERIAL PRIMARY KEY,

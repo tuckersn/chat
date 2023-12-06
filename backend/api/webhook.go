@@ -36,7 +36,7 @@ func HttpWebhookCreate(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookId [get]
+// @Router /api/webhook/:webhookKey [get]
 func HttpWebhookGet(r *gin.Context) {
 
 }
@@ -49,7 +49,7 @@ func HttpWebhookGet(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookId [delete]
+// @Router /api/webhook/:webhookKey [delete]
 func HttpWebhookDelete(r *gin.Context) {
 
 }
@@ -61,7 +61,7 @@ func HttpWebhookDelete(r *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookId [post]
+// @Router /api/webhook/:webhookKey [post]
 func HttpWebhookUpdate(r *gin.Context) {
 
 }

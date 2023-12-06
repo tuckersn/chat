@@ -19,6 +19,7 @@ import (
 	"github.com/tuckersn/chatbackend/api"
 	_ "github.com/tuckersn/chatbackend/docs"
 	docs "github.com/tuckersn/chatbackend/docs"
+	"github.com/tuckersn/chatbackend/google"
 	"github.com/tuckersn/chatbackend/util"
 )
 
@@ -115,7 +116,7 @@ func httpServer() {
 		messageRouter := apiRouter.Group("/message")
 		{
 			messageRouter.GET("/id/*messageId", api.HttpMessageGet)
-			messageRouter.POST("/id/*messageId", api.HttpMessageSend)
+			messageRouter.POST("/id/*messageId", api.HttpMessageRoom)
 			messageRouter.DELETE("/id/*messageId", api.HttpMessageDelete)
 		}
 		userRouter := apiRouter.Group("/user")
@@ -142,8 +143,12 @@ func httpServer() {
 	loginRouter := r.Group("/login")
 	{
 		if os.Getenv("CR_GITLAB_ENABLED") == "true" {
-			loginRouter.GET("/gitlab", api.HttpGitLabLoginRedirect)
-			loginRouter.GET("/gitlab/receiveToken", api.HttpGitLabLoginReceiveToken)
+			loginRouter.GET("/gitlab", api.HttpLoginGitlabRedirect)
+			loginRouter.GET("/gitlab/receive", api.HttpLoginGitlabReceive)
+		}
+		if google.GetGoogleAuthEnabled() {
+			loginRouter.GET("/google", api.HttpLoginGoogle)
+			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceive)
 		}
 	}
 	// api.SettingsRoutes(r)

@@ -1,6 +1,6 @@
 package db
 
-func TableInitMessageAttachment() {
+func TableInitMessageAttachment(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS message_attachment (
 			id SERIAL PRIMARY KEY,

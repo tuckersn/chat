@@ -12,7 +12,7 @@ type RecordNote struct {
 	Created int64  `db:"created"`
 }
 
-func TableInitNote() {
+func TableInitNote(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS note (
 			id SERIAL PRIMARY KEY,

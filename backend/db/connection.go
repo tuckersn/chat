@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-co-op/gocron"
 	"github.com/jmoiron/sqlx"
 	"github.com/tuckersn/chatbackend/openai"
 )
@@ -14,7 +15,12 @@ var Con *sqlx.DB = nil
 
 type Table struct {
 	Name string
-	Init func()
+	Init func(args TableInitContext)
+}
+
+type TableInitContext struct {
+	Name string
+	Cron *gocron.Scheduler
 }
 
 // In-order of initialization
@@ -26,6 +32,7 @@ var Tables = []Table{
 	{"message_attachment", TableInitMessageAttachment},
 	{"note", TableInitNote},
 	{"user_identity_google", TableInitUserIdentityGoogle},
+	{"user_identity_google_requests", TableInitUserIdentityGoogleRequests},
 	{"login", TableInitLogin},
 	{"webhook", TableInitWebhook},
 	{"webhook_result", TableInitWebhookResult},
@@ -37,7 +44,7 @@ func IsPGVectorEnabled() bool {
 
 var databaseInitialized = false
 
-func InitializeDatabaseConnection() {
+func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 
 	if databaseInitialized {
 		return
@@ -115,7 +122,10 @@ func InitializeDatabaseConnection() {
 
 	for i, table := range Tables {
 		log.Printf("[%d/%d] Initializing table %s", i+1, len(Tables), table.Name)
-		table.Init()
+		table.Init(TableInitContext{
+			Name: table.Name,
+			Cron: cron,
+		})
 	}
 
 	if IsPGVectorEnabled() {
@@ -129,7 +139,10 @@ func InitializeDatabaseConnection() {
 				log.Println("Error trying to enable pgvector extension")
 				log.Println(err)
 			}
-			TableInitOpenAIEmbeddings()
+			TableInitOpenAIEmbeddings(TableInitContext{
+				Name: "openai_embeddings",
+				Cron: cron,
+			})
 		}
 	}
 

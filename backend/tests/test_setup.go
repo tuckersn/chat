@@ -1,9 +1,11 @@
-package util
+package tests
 
 import (
 	"log"
 	"os"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	"github.com/tuckersn/chatbackend/db"
 )
@@ -14,6 +16,7 @@ func TestSetup(relativeRootPath string) (*log.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.InitializeDatabaseConnection()
+	s := gocron.NewScheduler(time.UTC)
+	db.InitializeDatabaseConnection(s)
 	return logger, nil
 }

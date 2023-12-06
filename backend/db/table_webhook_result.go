@@ -1,6 +1,6 @@
 package db
 
-func TableInitWebhookResult() {
+func TableInitWebhookResult(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS webhook_result (
 			id SERIAL PRIMARY KEY,

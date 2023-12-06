@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/tuckersn/chatbackend/db"
@@ -26,8 +28,10 @@ func main() {
 	fmt.Println("Storage dir: " + util.GetStorageDir(""))
 	util.CreateStorageDirectoryIfNotExists()
 
+	s := gocron.NewScheduler(time.UTC)
+
 	logger.Println("Initializing database connection")
-	db.InitializeDatabaseConnection()
+	db.InitializeDatabaseConnection(s)
 
 	var models []openai.ModelResponse
 	models, err = openai.GetModels()

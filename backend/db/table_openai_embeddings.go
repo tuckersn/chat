@@ -23,7 +23,7 @@ https://platform.openai.com/docs/guides/embeddings
 
 table name is plural since every record contains 1536 floats
 */
-func TableInitOpenAIEmbeddings() {
+func TableInitOpenAIEmbeddings(context TableInitContext) {
 	Con.MustExec(`
 		CREATE TABLE IF NOT EXISTS openai_embeddings (
 			id SERIAL PRIMARY KEY,

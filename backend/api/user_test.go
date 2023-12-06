@@ -5,12 +5,12 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/tuckersn/chatbackend/db"
-	"github.com/tuckersn/chatbackend/util"
+	"github.com/tuckersn/chatbackend/tests"
 )
 
 func Test_AccountLifeCycle(t *testing.T) {
 
-	logger, err := util.TestSetup("../.env")
+	logger, err := tests.TestSetup("../.env")
 	if err != nil {
 		t.Errorf("Error setting up test: %s", err)
 		return

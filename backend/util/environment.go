@@ -37,3 +37,7 @@ func CreateStorageDirectoryIfNotExists() {
 		}
 	}
 }
+
+func IsMainNode() bool {
+	return os.Getenv("MAIN_NODE") == "true"
+}

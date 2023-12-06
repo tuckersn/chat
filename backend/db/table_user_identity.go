@@ -20,7 +20,7 @@ type User struct {
 	Metadata    string     `db:"metadata"`
 }
 
-func TableInitUserIdentity() {
+func TableInitUserIdentity(context TableInitContext) {
 
 	/**
 	 * user_identity
