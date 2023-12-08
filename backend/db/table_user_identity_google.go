@@ -1,11 +1,16 @@
 package db
 
+import (
+	"errors"
+	"time"
+)
+
 type RecordUserIdentityGoogle struct {
-	Id         int32  `db:"id"`
-	UserId     int32  `db:"user_id"`
-	GoogleId   string `db:"google_id"`
-	Active     bool   `db:"active"`
-	LastUpdate int64  `db:"last_updated"`
+	Id         int32     `db:"id"`
+	UserId     int32     `db:"user_id"`
+	GoogleId   string    `db:"google_id"`
+	Active     bool      `db:"active"`
+	LastUpdate time.Time `db:"last_updated"`
 }
 
 func TableInitUserIdentityGoogle(context TableInitContext) {
@@ -24,18 +29,38 @@ func TableInitUserIdentityGoogle(context TableInitContext) {
 	`)
 }
 
-func InsertUserIdentityGoogle(user_id int32, google_id string) {
-	_, err := Con.NamedExec(`
+func InsertUserIdentityGoogle(user_id int32, google_id string) (RecordUserIdentityGoogle, error) {
+	rows, err := Con.NamedQuery(`
 		INSERT INTO user_identity_google (user_id, google_id)
 		VALUES (:user_id, :google_id)
+		RETURNING *
 	`, map[string]interface{}{
 		"user_id":   user_id,
 		"google_id": google_id,
 	})
 
+	_, err = Con.NamedExec(`
+		UPDATE user_identity
+		SET metadata = jsonb_set(metadata, '{google_auth}', 'true', TRUE)
+		WHERE id = :user_id
+	`, map[string]interface{}{
+		"user_id": user_id,
+	})
+
 	if err != nil {
-		panic(err)
+		return RecordUserIdentityGoogle{}, err
 	}
+
+	for rows.Next() {
+		var record RecordUserIdentityGoogle
+		err = rows.StructScan(&record)
+		if err != nil {
+			return RecordUserIdentityGoogle{}, err
+		}
+		return record, nil
+	}
+
+	return RecordUserIdentityGoogle{}, errors.New("No rows returned")
 }
 
 func UpdateUserIdentityGoogle(user_id int32, google_id string) {

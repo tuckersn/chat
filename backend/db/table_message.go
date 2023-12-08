@@ -14,8 +14,12 @@ type RecordMessage struct {
 	Metadata string `db:"metadata"`
 }
 
-func (m *RecordMessage) Author() *User {
-	return GetUserById(m.AuthorId)
+func (m *RecordMessage) Author() RecordUser {
+	user, err := GetUserById(m.AuthorId)
+	if err != nil {
+		panic(err)
+	}
+	return user
 }
 
 func TableInitMessage(context TableInitContext) {

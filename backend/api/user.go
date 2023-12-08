@@ -72,7 +72,7 @@ type UserCreateRequest struct {
 	Admin       *bool  `json:"admin"`
 }
 
-func UserCreate(username string, displayName string) (*db.User, error) {
+func UserCreate(username string, displayName string) (db.RecordUser, error) {
 	user, err := db.InsertUser(username, displayName)
 	return user, err
 }

@@ -13,6 +13,10 @@ import { NotFoundPage } from './routes/web/NotFoundPage.tsx';
 import { UserListAdminPage } from './routes/web/server/UserListAdminPage.tsx';
 import { NotesPageFrame } from './routes/web/notes/NotesPageFrame.tsx';
 import { NotesDocumentPage } from './routes/web/notes/NotesDocumentPage.tsx';
+import { LoginPage } from './routes/web/account/LoginPage.tsx';
+import { CreateAccountPage } from './routes/web/account/CreateAccountPage.tsx';
+import { GoogleReceiveTokenPage } from './routes/web/account/GoogleReceiveTokenPage.tsx';
+import { ViewProfilePage } from './routes/web/account/ViewProfilePage.tsx';
 
 const root = document.getElementById('app')!;
 
@@ -20,6 +24,15 @@ render(<BrowserRouter>
     <Routes>
         <Route path="*" element={<WebContentFrame/>}>
             <Route path="app" element={<h1>Hello World</h1>}/>
+            <Route path="account">
+                <Route path="new" element={<CreateAccountPage/>}/>
+                <Route path="login" element={<LoginPage/>}/>
+                <Route path="oauth">
+                    <Route path="google" element={<GoogleReceiveTokenPage/>}/>
+                </Route>
+                <Route path="profile" element={<ViewProfilePage/>}/>
+                <Route path="*" element={<NotFoundPage/>}/>
+            </Route>
             <Route path="chat" element={<ChatFrame/>}>
                 <Route index element={<ChatOverviewPage/>}/>
                 <Route path="id/:chatId" element={<ChatMessagePage/>}/>

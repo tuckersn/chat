@@ -96,12 +96,16 @@ func (r *RecordRoom) IsMember(username string) bool {
 	return r.IsMemberById(user.Id)
 }
 
-func (r *RecordRoom) Owner() *User {
-	return GetUserById(r.OwnerId)
+func (r *RecordRoom) Owner() RecordUser {
+	owner, err := GetUserById(r.OwnerId)
+	if err != nil {
+		panic(err)
+	}
+	return owner
 }
 
-func (r *RecordRoom) Members() []*User {
-	var users []*User
+func (r *RecordRoom) Members() []*RecordUser {
+	var users []*RecordUser
 	err := Con.Select(&users, "SELECT * FROM user WHERE id IN (SELECT user_id FROM room_members WHERE room_id = $1)", r.Id)
 	if err != nil {
 		panic(err)

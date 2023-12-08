@@ -148,7 +148,7 @@ func httpServer() {
 		}
 		if google.GetGoogleAuthEnabled() {
 			loginRouter.GET("/google", api.HttpLoginGoogle)
-			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceive)
+			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceiveToken)
 		}
 	}
 	// api.SettingsRoutes(r)

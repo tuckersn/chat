@@ -13,14 +13,20 @@ import (
 
 var Con *sqlx.DB = nil
 
+type TableSharedContext struct {
+	VectorsEnabled bool
+	OpenAIEnabled  bool
+}
+
 type Table struct {
 	Name string
 	Init func(args TableInitContext)
 }
 
 type TableInitContext struct {
-	Name string
-	Cron *gocron.Scheduler
+	Name          string
+	Cron          *gocron.Scheduler
+	SharedContext *TableSharedContext
 }
 
 // In-order of initialization
@@ -120,30 +126,43 @@ func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 		log.Fatalln(err)
 	}
 
-	for i, table := range Tables {
-		log.Printf("[%d/%d] Initializing table %s", i+1, len(Tables), table.Name)
-		table.Init(TableInitContext{
-			Name: table.Name,
-			Cron: cron,
-		})
+	var shared TableSharedContext = TableSharedContext{
+		VectorsEnabled: IsPGVectorEnabled(),
+		OpenAIEnabled:  openai.APIKey() != "",
 	}
-
-	if IsPGVectorEnabled() {
+	if shared.VectorsEnabled {
 		log.Println("pgvector is enabled, enabling vector similarity search and vector fields")
-		if openai.APIKey() != "" {
+		_, err = Con.Exec(`
+			CREATE EXTENSION IF NOT EXISTS vector CASCADE;
+		`)
+		if err != nil {
+			log.Println("Error trying to enable pgvector extension")
+			log.Println(err)
+		}
+		if shared.OpenAIEnabled {
 			log.Println("OpenAI API key is set, enabling OpenAI embeddings (vector fields)")
-			_, err = Con.Exec(`
-				CREATE EXTENSION IF NOT EXISTS vector CASCADE;
-			`)
-			if err != nil {
-				log.Println("Error trying to enable pgvector extension")
-				log.Println(err)
-			}
 			TableInitOpenAIEmbeddings(TableInitContext{
-				Name: "openai_embeddings",
-				Cron: cron,
+				Name:          "openai_embeddings",
+				Cron:          cron,
+				SharedContext: &shared,
 			})
 		}
 	}
 
+	for i, table := range Tables {
+		log.Printf("[%d/%d] Initializing table %s", i+1, len(Tables), table.Name)
+		table.Init(TableInitContext{
+			Name:          table.Name,
+			Cron:          cron,
+			SharedContext: &shared,
+		})
+	}
+
+}
+
+func Exec(query string) {
+	_, err := Con.Exec(query)
+	if err != nil {
+		panic(err)
+	}
 }

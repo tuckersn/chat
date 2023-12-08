@@ -9,15 +9,32 @@ import (
 var UserNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 var DisplayNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_ ]+$`)
 
-type User struct {
+type RecordUser struct {
 	Id          int32      `db:"id"`
-	Key         string     `db:"key"`
 	Username    string     `db:"username"`
 	DisplayName string     `db:"display_name"`
+	Email       *string    `db:"email"`
 	JoinedTime  time.Time  `db:"joined_time"`
 	LastSeen    *time.Time `db:"last_seen"`
+	Activated   bool       `db:"activated"`
 	Admin       bool       `db:"admin"`
 	Metadata    string     `db:"metadata"`
+}
+
+func (user *RecordUser) SetActive(active bool) *RecordUser {
+	_, err := Con.Exec("UPDATE user_identity SET activated = $1 WHERE id = $2", active, user.Id)
+	if err != nil {
+		panic(err)
+	}
+	return user
+}
+
+func (user *RecordUser) SetAdmin(admin bool) *RecordUser {
+	_, err := Con.Exec("UPDATE user_identity SET admin = $1 WHERE id = $2", admin, user.Id)
+	if err != nil {
+		panic(err)
+	}
+	return user
 }
 
 func TableInitUserIdentity(context TableInitContext) {
@@ -30,6 +47,8 @@ func TableInitUserIdentity(context TableInitContext) {
 			id SERIAL PRIMARY KEY,
 			username TEXT NOT NULL,
 			display_name TEXT NOT NULL,
+			email TEXT,
+			activated BOOLEAN DEFAULT FALSE,
 			admin BOOLEAN DEFAULT FALSE,
 			joined_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 			last_seen TIMESTAMP WITH TIME ZONE,
@@ -60,17 +79,20 @@ func TableInitUserIdentity(context TableInitContext) {
 	/**
 	 * post setup steps
 	 */
-	InsertUser("admin", "Administrator")
-	MakeUserAdmin("admin")
+	user, err := InsertUser("admin", "Administrator")
+	if err != nil {
+		panic(err)
+	}
+	user.SetActive(true).SetAdmin(true)
 }
 
-func InsertUser(username string, displayName string) (*User, error) {
+func InsertUser(username string, displayName string) (RecordUser, error) {
 	if !UserNameRegex.MatchString(username) {
-		return nil, errors.New("Invalid username")
+		return RecordUser{}, errors.New("Invalid username")
 	}
 
 	if !DisplayNameRegex.MatchString(displayName) {
-		return nil, errors.New("Invalid display name")
+		return RecordUser{}, errors.New("Invalid display name")
 	}
 
 	rows, err := Con.NamedQuery(`
@@ -83,55 +105,33 @@ func InsertUser(username string, displayName string) (*User, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return RecordUser{}, err
 	}
 
-	var user User
+	var user RecordUser
 	for rows.Next() {
 		err = rows.StructScan(&user)
-		return &user, err
+		return user, err
 	}
-	return nil, errors.New("Failed to insert user")
+	return RecordUser{}, errors.New("Failed to insert user")
 }
 
-func InsertAdmin(username string, displayName string) {
-	if !UserNameRegex.MatchString(username) {
-		panic("Invalid username")
-	}
-
-	if !DisplayNameRegex.MatchString(displayName) {
-		panic("Invalid display name")
-	}
-
-	_, err := Con.NamedExec(`
-		INSERT INTO user_identity (username, display_name)
-		VALUES (:username, :display_name)
-	`, map[string]interface{}{
-		"username":     username,
-		"display_name": displayName,
-	})
-
-	if err != nil {
-		panic(err)
-	}
-}
-
-func GetUserById(id int32) *User {
-	var user User
+func GetUserById(id int32) (RecordUser, error) {
+	var user RecordUser
 	err := Con.Get(&user, "SELECT * FROM user_identity WHERE id = $1", id)
 	if err != nil {
-		panic(err)
+		return RecordUser{}, err
 	}
-	return &user
+	return user, nil
 }
 
-func GetUser(username string) (*User, error) {
-	var user User
+func GetUser(username string) (RecordUser, error) {
+	var user RecordUser
 	err := Con.Get(&user, "SELECT * FROM user_identity WHERE username = $1", username)
 	if err != nil {
-		return nil, err
+		return RecordUser{}, err
 	}
-	return &user, nil
+	return user, nil
 }
 
 func MakeUserAdmin(username string) {

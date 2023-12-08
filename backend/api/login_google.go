@@ -10,10 +10,14 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/buger/jsonparser"
 	"github.com/gin-gonic/gin"
+	"github.com/tuckersn/chatbackend/auth"
 	"github.com/tuckersn/chatbackend/db"
 	"github.com/tuckersn/chatbackend/google"
 	"github.com/tuckersn/chatbackend/util"
+
+	gosql "database/sql"
 )
 
 // HttpLoginGoogle godoc
@@ -26,7 +30,7 @@ import (
 // @Router /login/google [get]
 func HttpLoginGoogle(c *gin.Context) {
 	csrf_token := util.RandomString(64, []string{util.ALPHABET_ALPHANUMERIC})
-	err := db.InsertUserIdentityGoogleRequest(csrf_token)
+	err := db.InsertUserIdentityGoogleRequest(csrf_token, c.Request.Host)
 	if err != nil {
 		panic(err)
 	}
@@ -35,16 +39,16 @@ func HttpLoginGoogle(c *gin.Context) {
 	values.Add("client_id", google.GetGoogleAppId())
 	values.Add("redirect_uri", "https://"+c.Request.Host+"/login/google/receive")
 	values.Add("response_type", "code")
-	values.Add("scope", strings.Join(google.OAUTH_SCOPES, " "))
+	values.Add("scope", strings.Join(google.OAUTH_ID_SCOPES, " "))
 	values.Add("access_type", "offline")
 	values.Add("state", csrf_token)
 	values.Add("include_granted_scopes", "true")
-	values.Add("prompt", "select_account")
+	values.Add("prompt", "consent")
 
 	c.Redirect(302, fmt.Sprintf("https://accounts.google.com/o/oauth2/v2/auth?%s", values.Encode()))
 }
 
-// HttpLoginGoogleReceive godoc
+// HttpLoginGoogleReceiveToken godoc
 // @Summary Receives the response of the Google OAuth consent screen
 // @Description https://developers.google.com/identity/protocols/oauth2/web-server#httprest
 // @Tags Login
@@ -52,7 +56,7 @@ func HttpLoginGoogle(c *gin.Context) {
 // @Produce json
 // @Success 200
 // @Router /login/google/receive [get]
-func HttpLoginGoogleReceive(c *gin.Context) {
+func HttpLoginGoogleReceiveToken(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
 
@@ -92,8 +96,8 @@ func HttpLoginGoogleReceive(c *gin.Context) {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println(err)
-		c.JSON(400, gin.H{
-			"error": "Invalid code",
+		c.JSON(500, gin.H{
+			"error": "Invalid google API request",
 		})
 		return
 	}
@@ -101,64 +105,105 @@ func HttpLoginGoogleReceive(c *gin.Context) {
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
-		c.JSON(400, gin.H{
-			"error": "Invalid code",
+		c.JSON(500, gin.H{
+			"error": "Invalid response body",
 		})
 		return
 	}
 
-	fmt.Println(string(respBody))
-
-	var respJson map[string]interface{}
-	err = json.Unmarshal(respBody, &respJson)
+	id_token_str, err := jsonparser.GetString(respBody, "id_token")
 	if err != nil {
 		log.Println(err)
 		c.JSON(400, gin.H{
-			"error": "Invalid code",
+			"error": "Invalid id_token json",
 		})
 		return
 	}
 
-	access_token, ok := respJson["access_token"].(string)
-	if !ok {
-		log.Println(err)
-		c.JSON(400, gin.H{
-			"error": "Invalid code",
-		})
-		return
-	}
-
-	refresh_token, ok := respJson["refresh_token"].(string)
-	if !ok {
-		log.Println(err)
-		c.JSON(400, gin.H{
-			"error": "Invalid code",
-		})
-		return
-	}
-
-	id_token, ok := respJson["id_token"].(string)
-	if !ok {
-		log.Println(err)
-		c.JSON(400, gin.H{
-			"error": "Invalid code",
-		})
-		return
-	}
-
-	fmt.Println(access_token)
-	fmt.Println(refresh_token)
-	fmt.Println(id_token)
-
-	profile, err := google.GetProfile(access_token)
+	id_token, err := google.VerifyGoogleIDToken(id_token_str)
 	if err != nil {
 		log.Println(err)
 		c.JSON(400, gin.H{
-			"error": "Invalid code",
+			"error": "Invalid id_token when verifying",
 		})
 		return
 	}
 
-	fmt.Println(profile)
+	if id_token.Iss != "https://accounts.google.com" {
+		log.Println(err)
+		c.JSON(400, gin.H{
+			"error": "Invalid id_token, wrong issuer",
+		})
+		return
+	}
 
+	if id_token.Aud != google.GetGoogleAppId() {
+		log.Println(err)
+		c.JSON(400, gin.H{
+			"error": "Invalid id_token",
+		})
+		return
+	}
+
+	if id_token.EmailVerified != true {
+		log.Println(err)
+		c.JSON(401, gin.H{
+			"error": "Email not verified",
+		})
+		return
+	}
+
+	newUser := false
+	var user db.RecordUser
+	googleIdentity, err := db.GetUserIdentityGoogleByGoogleId(id_token.Sub)
+
+	if err == gosql.ErrNoRows {
+		// Create new user
+		newUser = true
+		user, err = db.InsertUser(util.RandomString(6, []string{util.ALPHABET_ALPHANUMERIC}), id_token.Name)
+		if err != nil {
+			log.Println("Error creating user indentity", err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+		googleIdentity, err = db.InsertUserIdentityGoogle(user.Id, id_token.Sub)
+		if err != nil {
+			log.Println("Error creating Google identity", err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+
+	} else if err != nil {
+		log.Println(err)
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+
+	} else {
+		// Get existing user
+		user, err = db.GetUserById(googleIdentity.UserId)
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+	}
+
+	token, err := auth.CreateToken(user.Username, user.Id, user.Admin)
+	if err != nil {
+		log.Println("Failed to create token", err)
+		c.JSON(500, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+
+	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
 }

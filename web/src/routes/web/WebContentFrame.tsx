@@ -1,13 +1,16 @@
 import React, { FC, HTMLProps, JSX, useEffect, useMemo, useState } from "preact/compat";
 
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, LinkProps, Outlet, useNavigate } from "react-router-dom";
 
 import styled from "styled-components";
 
-import { GiBookCover, GiChatBubble, GiServerRack } from "react-icons/gi";
+import { GiAbstract008, GiAbstract076, GiAccordion, GiBookCover, GiBookshelf, GiChatBubble, GiOverdrive, GiPerson, GiServerRack, GiSettingsKnobs } from "react-icons/gi";
+import { FaAccessibleIcon, FaBox, FaPersonBooth, FaUser } from "react-icons/fa"
 
 import "../../style-web.scss";
 import { SearchBar } from "../../components/SearchBar";
+import { SiEngadget } from "react-icons/si";
+import { useLoggedIn } from "../../core/web/useLoggedIn";
 
 export const NavButtonHeight = 64;
 export const NavButtonWidth = 128;
@@ -32,7 +35,7 @@ const NavCategory: FC<NavCategoryProps> = ({
     const navigate = useNavigate();
     
     useEffect(() => {
-        setActive(category[0] === to);
+        setActive(category[0].startsWith(to));
     }, [category[0], to]);
 
     return <>
@@ -63,13 +66,15 @@ const NavCategory: FC<NavCategoryProps> = ({
     </>;
 }
 
-const NavCategoryLink: FC<HTMLProps<HTMLAnchorElement>> = ({
+const NavCategoryLink: FC<LinkProps> = ({
     children,
     ...props
 }) => {
-    return <Link {...props}>
-        {children}
-    </Link>
+    return <div>
+        <Link {...props}>
+            {children}
+        </Link>
+    </div>;
 }
 
 
@@ -77,6 +82,15 @@ const NavCategoryLink: FC<HTMLProps<HTMLAnchorElement>> = ({
 export const WebContentFrame: FC = ({children}) => {
 
     const category = useState("/chat");
+    const loggedIn = useLoggedIn();
+
+
+    useEffect(() => {
+        category[1](window.location.pathname);
+        if (window.location.pathname === "/") {
+            window.location.pathname = "/account/profile";
+        }
+    }, [window.location.pathname]);
 
     return (
         <div class="flex-container flex-min h-fill" style={{
@@ -88,8 +102,27 @@ export const WebContentFrame: FC = ({children}) => {
                 height: "100%",
                 flex: `0 0 ${NavButtonWidth}px`,
             }}>
+                <NavCategory icon={<FaUser size={NavButtonIconSize}/>} to="/account" category={category}>
+                {
+                    loggedIn ? <>
+                        <NavCategoryLink to="/account/profile">
+                            Profile
+                        </NavCategoryLink>
+                        <button onClick={() => {
+                            localStorage.removeItem("token");
+                            window.location.reload();
+                        }}>
+                            Logout
+                        </button>
+                    </> : <>
+                        <NavCategoryLink to="/account/login">
+                            Login
+                        </NavCategoryLink>
+                    </>
+                }
+                </NavCategory>
                 <NavCategory icon={<GiBookCover size={NavButtonIconSize}/>} to="/notes" category={category}>
-                    <NavCategoryLink>
+                    <NavCategoryLink to="/notes/test">
                         Test
                     </NavCategoryLink>
                 </NavCategory>

@@ -41,3 +41,7 @@ func CreateStorageDirectoryIfNotExists() {
 func IsMainNode() bool {
 	return os.Getenv("MAIN_NODE") == "true"
 }
+
+func GetRedirectBaseUrl() string {
+	return os.Getenv("CR_REDIRECT_URL")
+}

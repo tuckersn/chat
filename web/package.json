@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "jsonwebtoken": "^9.0.2",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "preact": "^10.16.0",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.5.0",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@vitejs/plugin-basic-ssl": "^1.0.2",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
   }
