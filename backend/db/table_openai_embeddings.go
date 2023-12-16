@@ -24,7 +24,7 @@ https://platform.openai.com/docs/guides/embeddings
 table name is plural since every record contains 1536 floats
 */
 func TableInitOpenAIEmbeddings(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS openai_embeddings (
 			id SERIAL PRIMARY KEY,
 			embeddings VECTOR(1536) NOT NULL,
@@ -37,10 +37,10 @@ func TableInitOpenAIEmbeddings(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_embeddings ON openai_embeddings (embeddings);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_name ON openai_embeddings (table_name);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_col ON openai_embeddings (table_col);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_id ON openai_embeddings (table_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_embeddings ON openai_embeddings (embeddings);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_name ON openai_embeddings (table_name);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_col ON openai_embeddings (table_col);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_openai_embeddings_table_id ON openai_embeddings (table_id);`)
 }
 
 func GetOrVectorizeRecordCustom(

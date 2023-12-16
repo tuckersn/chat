@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	swaggerfiles "github.com/swaggo/files"
@@ -92,18 +93,20 @@ func httpServer() {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = ""
 
+	r.Use(cors.New(cors.Config{
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+	}))
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-
-	pagesDir := os.Getenv("COVE_PAGES_DIR")
-	if pagesDir == "" {
-		pagesDir = "~/.cove"
-	}
-
-	WebsocketGinRoutes(r)
 
 	apiRouter := r.Group("/api")
 	{
@@ -142,6 +145,7 @@ func httpServer() {
 
 	loginRouter := r.Group("/login")
 	{
+		loginRouter.GET("/recent", api.HttpLoginRecent)
 		if os.Getenv("CR_GITLAB_ENABLED") == "true" {
 			loginRouter.GET("/gitlab", api.HttpLoginGitlabRedirect)
 			loginRouter.GET("/gitlab/receive", api.HttpLoginGitlabReceive)
@@ -151,7 +155,6 @@ func httpServer() {
 			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceiveToken)
 		}
 	}
-	// api.SettingsRoutes(r)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 

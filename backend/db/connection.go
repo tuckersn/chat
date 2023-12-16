@@ -166,3 +166,19 @@ func Exec(query string) {
 		panic(err)
 	}
 }
+
+func TypeExists(typeName string) bool {
+	var name string
+	err := Con.Get(&name, `
+		SELECT typname
+		FROM pg_type
+		WHERE typname = $1;
+		`, typeName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false
+		}
+		panic(err)
+	}
+	return name == typeName
+}

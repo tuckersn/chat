@@ -8,6 +8,7 @@ import (
 
 var UserNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 var DisplayNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_ ]+$`)
+var EmailRegex = regexp.MustCompile(`^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+|)$`)
 
 type RecordUser struct {
 	Id          int32      `db:"id"`
@@ -42,12 +43,12 @@ func TableInitUserIdentity(context TableInitContext) {
 	/**
 	 * user_identity
 	 */
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS user_identity (
 			id SERIAL PRIMARY KEY,
 			username TEXT NOT NULL,
 			display_name TEXT NOT NULL,
-			email TEXT,
+			email TEXT DEFAULT '',
 			activated BOOLEAN DEFAULT FALSE,
 			admin BOOLEAN DEFAULT FALSE,
 			joined_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -56,37 +57,37 @@ func TableInitUserIdentity(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`
+	Exec(`
 		CREATE INDEX IF NOT EXISTS idx_user_identity_username ON user_identity (username);
 	`)
 
-	Con.MustExec(`
+	Exec(`
 		CREATE INDEX IF NOT EXISTS idx_user_identity_display_name ON user_identity (display_name);
 	`)
 
 	/**
 	 * mv_user_identity_admin
 	 */
-	Con.MustExec(`
+	Exec(`
 		CREATE MATERIALIZED VIEW IF NOT EXISTS mv_user_identity_admin AS
 		SELECT * FROM user_identity WHERE admin = TRUE;
 	`)
 
-	Con.MustExec(`
+	Exec(`
 		CREATE INDEX IF NOT EXISTS mv_idx_user_identity_admin_username ON mv_user_identity_admin (username);
 	`)
 
 	/**
 	 * post setup steps
 	 */
-	user, err := InsertUser("admin", "Administrator")
+	user, err := InsertUser("admin", "Administrator", "")
 	if err != nil {
 		panic(err)
 	}
 	user.SetActive(true).SetAdmin(true)
 }
 
-func InsertUser(username string, displayName string) (RecordUser, error) {
+func InsertUser(username string, displayName string, email string) (RecordUser, error) {
 	if !UserNameRegex.MatchString(username) {
 		return RecordUser{}, errors.New("Invalid username")
 	}

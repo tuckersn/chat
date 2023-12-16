@@ -18,7 +18,7 @@ func TableInitRoom(context TableInitContext) {
 	/**
 	 * room
 	 */
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS room (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL,
@@ -30,13 +30,13 @@ func TableInitRoom(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_owner_id ON room (owner_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_name ON room (name);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_room_owner_id ON room (owner_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_room_name ON room (name);`)
 
 	/**
 	 * room_member
 	 */
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS room_member (
 			id SERIAL PRIMARY KEY,
 			room_id INTEGER NOT NULL,
@@ -48,8 +48,8 @@ func TableInitRoom(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_member_room_id ON room_member (room_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_room_member_user_id ON room_member (user_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_room_member_room_id ON room_member (room_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_room_member_user_id ON room_member (user_id);`)
 }
 
 func InsertRoom(name string, description string, owner_id int32) {

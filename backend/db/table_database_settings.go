@@ -19,7 +19,7 @@ func SetDatabaseSetting(key string, value any) {
 table name is plural since this is basically a string key to json map as a table
 */
 func TableInitDatabaseSettings(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS database_settings (
 			key TEXT PRIMARY KEY,
 			value JSONB NOT NULL,
@@ -27,7 +27,7 @@ func TableInitDatabaseSettings(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`
+	Exec(`
 		CREATE INDEX IF NOT EXISTS idx_database_settings_key ON database_settings (key);
 	`)
 

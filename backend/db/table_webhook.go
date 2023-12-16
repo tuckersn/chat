@@ -17,7 +17,7 @@ type RecordWebhook struct {
 }
 
 func TableInitWebhook(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS webhook (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL,
@@ -31,8 +31,8 @@ func TableInitWebhook(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_owner_id ON webhook (owner_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_name ON webhook (name);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_webhook_owner_id ON webhook (owner_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_webhook_name ON webhook (name);`)
 }
 
 func InsertWebhook(name string, url string, owner_id int32) {

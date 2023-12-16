@@ -160,7 +160,8 @@ func HttpLoginGoogleReceiveToken(c *gin.Context) {
 	if err == gosql.ErrNoRows {
 		// Create new user
 		newUser = true
-		user, err = db.InsertUser(util.RandomString(6, []string{util.ALPHABET_ALPHANUMERIC}), id_token.Name)
+		//TODO: check if id_token.EmailVerified is true
+		user, err = db.InsertUser(util.RandomString(6, []string{util.ALPHABET_ALPHANUMERIC}), id_token.Name, id_token.Email)
 		if err != nil {
 			log.Println("Error creating user indentity", err)
 			c.JSON(500, gin.H{
@@ -196,13 +197,13 @@ func HttpLoginGoogleReceiveToken(c *gin.Context) {
 		}
 	}
 
-	token, err := auth.CreateToken(user.Username, user.Id, user.Admin)
+	token, err := auth.LoginUser(c, user, map[string]any{
+		"google_id":  id_token.Sub,
+		"user_agent": c.Request.UserAgent(),
+		"url":        "https://" + c.Request.Host + "/login/google/receive",
+	})
 	if err != nil {
-		log.Println("Failed to create token", err)
-		c.JSON(500, gin.H{
-			"error": "Internal server error",
-		})
-		return
+		return // Error already handled by LoginUser
 	}
 
 	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))

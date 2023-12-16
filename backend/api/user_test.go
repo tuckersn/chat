@@ -17,7 +17,7 @@ func Test_AccountLifeCycle(t *testing.T) {
 	}
 
 	logger.Println("Creating user")
-	createdUser, err := UserCreate("test_lifecycle", "test_lifecycle")
+	createdUser, err := UserCreate("test_lifecycle", "test_lifecycle", "")
 	if err != nil {
 		panic(err)
 	}

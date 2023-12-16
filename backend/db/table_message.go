@@ -23,7 +23,7 @@ func (m *RecordMessage) Author() RecordUser {
 }
 
 func TableInitMessage(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS message (
 			id SERIAL PRIMARY KEY,
 			key TEXT NOT NULL,
@@ -37,9 +37,9 @@ func TableInitMessage(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_room_id ON message (room_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_author_id ON message (author_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_key ON message (key);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_room_id ON message (room_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_author_id ON message (author_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_key ON message (key);`)
 }
 
 func InsertMessage(room_id int32, author_id int32, content string) {

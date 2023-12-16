@@ -13,7 +13,7 @@ type RecordNote struct {
 }
 
 func TableInitNote(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS note (
 			id SERIAL PRIMARY KEY,
 			path TEXT NOT NULL,
@@ -25,10 +25,10 @@ func TableInitNote(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_path ON note (path);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_owner_id ON note (owner_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_note_path ON note (path);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_note_owner_id ON note (owner_id);`)
 
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS note_member (
 			id SERIAL PRIMARY KEY,
 			note_id INTEGER NOT NULL,
@@ -40,8 +40,8 @@ func TableInitNote(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_member_note_id ON note_member (note_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_note_member_user_id ON note_member (user_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_note_member_note_id ON note_member (note_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_note_member_user_id ON note_member (user_id);`)
 }
 
 func InsertNote(path string, content string, owner_id int32) {

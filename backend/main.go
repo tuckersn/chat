@@ -25,6 +25,8 @@ func main() {
 		panic(err)
 	}
 
+	util.LoadConfigOnStartup()
+
 	fmt.Println("Storage dir: " + util.GetStorageDir(""))
 	util.CreateStorageDirectoryIfNotExists()
 

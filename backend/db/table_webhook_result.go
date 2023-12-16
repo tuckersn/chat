@@ -1,7 +1,7 @@
 package db
 
 func TableInitWebhookResult(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS webhook_result (
 			id SERIAL PRIMARY KEY,
 			webhook_id INTEGER NOT NULL,
@@ -16,8 +16,8 @@ func TableInitWebhookResult(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_webhook_id ON webhook_result (webhook_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_trigerred_by ON webhook_result (trigerred_by);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_webhook_id ON webhook_result (webhook_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_webhook_result_trigerred_by ON webhook_result (trigerred_by);`)
 }
 
 func InsertWebhookResult(

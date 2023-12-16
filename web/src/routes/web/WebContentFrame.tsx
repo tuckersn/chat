@@ -10,7 +10,7 @@ import { FaAccessibleIcon, FaBox, FaPersonBooth, FaUser } from "react-icons/fa"
 import "../../style-web.scss";
 import { SearchBar } from "../../components/SearchBar";
 import { SiEngadget } from "react-icons/si";
-import { useLoggedIn } from "../../core/web/useLoggedIn";
+import { useToken } from "../../core/web/Auth";
 
 export const NavButtonHeight = 64;
 export const NavButtonWidth = 128;
@@ -82,7 +82,7 @@ const NavCategoryLink: FC<LinkProps> = ({
 export const WebContentFrame: FC = ({children}) => {
 
     const category = useState("/chat");
-    const loggedIn = useLoggedIn();
+    const account = useToken();
 
 
     useEffect(() => {
@@ -104,7 +104,7 @@ export const WebContentFrame: FC = ({children}) => {
             }}>
                 <NavCategory icon={<FaUser size={NavButtonIconSize}/>} to="/account" category={category}>
                 {
-                    loggedIn ? <>
+                    account === null ? <>
                         <NavCategoryLink to="/account/profile">
                             Profile
                         </NavCategoryLink>

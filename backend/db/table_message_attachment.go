@@ -1,7 +1,7 @@
 package db
 
 func TableInitMessageAttachment(context TableInitContext) {
-	Con.MustExec(`
+	Exec(`
 		CREATE TABLE IF NOT EXISTS message_attachment (
 			id SERIAL PRIMARY KEY,
 			message_id INTEGER NOT NULL,
@@ -19,7 +19,7 @@ func TableInitMessageAttachment(context TableInitContext) {
 		);
 	`)
 
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_message_id ON message_attachment (message_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_user_id ON message_attachment (user_id);`)
-	Con.MustExec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_room_id ON message_attachment (room_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_message_id ON message_attachment (message_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_user_id ON message_attachment (user_id);`)
+	Exec(`CREATE INDEX IF NOT EXISTS idx_message_attachment_room_id ON message_attachment (room_id);`)
 }

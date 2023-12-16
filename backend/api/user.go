@@ -72,8 +72,8 @@ type UserCreateRequest struct {
 	Admin       *bool  `json:"admin"`
 }
 
-func UserCreate(username string, displayName string) (db.RecordUser, error) {
-	user, err := db.InsertUser(username, displayName)
+func UserCreate(username string, displayName string, email string) (db.RecordUser, error) {
+	user, err := db.InsertUser(username, displayName, email)
 	return user, err
 }
 
@@ -126,7 +126,16 @@ func HttpUserCreate(c *gin.Context) {
 		return
 	}
 
-	user, err := UserCreate(username, displayName)
+	var email string
+	email, err = jsonparser.GetString(input, "email")
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Invalid email",
+		})
+		return
+	}
+
+	user, err := UserCreate(username, displayName, email)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "Internal server error",
