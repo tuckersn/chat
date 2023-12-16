@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"log"
 	"math/big"
 	"net"
@@ -32,9 +33,6 @@ var upgrader = websocket.Upgrader{
 func generateSelfSignedCert() {
 	logger := log.New(os.Stdout, "[SELF CERTIFICATE]", log.LstdFlags|log.Lshortfile)
 
-	keyFile := util.GetStorageDir("cert.key")
-	certFile := util.GetStorageDir("cert.crt")
-
 	// Generate private key
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -42,7 +40,7 @@ func generateSelfSignedCert() {
 	}
 
 	// Serialize private key to PEM format
-	keyOut, err := os.Create(keyFile)
+	keyOut, err := os.Create(util.Config.Http.KeyFile)
 	if err != nil {
 		logger.Fatalf("Failed to open cert.key for writing: %v", err)
 	}
@@ -79,7 +77,7 @@ func generateSelfSignedCert() {
 	}
 
 	// Serialize certificate to PEM format
-	certOut, err := os.Create(certFile)
+	certOut, err := os.Create(util.Config.Http.CertFile)
 	if err != nil {
 		logger.Fatalf("Failed to open cert.crt for writing: %v", err)
 	}
@@ -158,10 +156,8 @@ func httpServer() {
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	if os.Getenv("HTTPS_CERT_FILE") != "" {
-		r.RunTLS(":8080", os.Getenv("HTTPS_CERT_FILE"), os.Getenv("HTTPS_KEY_FILE"))
-	} else {
+	if _, err := os.Stat(util.Config.Http.CertFile); os.IsNotExist(err) {
 		generateSelfSignedCert()
-		r.RunTLS(":8080", util.GetStorageDir("cert.crt"), util.GetStorageDir("cert.key"))
 	}
+	r.RunTLS(":"+fmt.Sprint(util.Config.Http.Port), util.Config.Http.CertFile, util.Config.Http.KeyFile)
 }

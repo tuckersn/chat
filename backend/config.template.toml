@@ -3,19 +3,20 @@ main_node=true
 
 storage_dir="~/.chatroom"
 redirect_base_url="localhost:5173"
-api_base_url="http://localhost:8080"
+api_base_url="https://localhost:6500"
 
 [Auth]
 token_secret=""
 
 
 [HTTP]
+port=6500
 https_enabled=true
-cert_file="./cert.crt"
-key_file="./cert.key"
+cert_file=""
+key_file=""
 cors_regexs=[
-    "http(|s)://localhost:(5173|8080)",
-    "http(|s)://127.0.0.1:(5173|8080)",
+    "http(|s)://localhost:(5173|6500)",
+    "http(|s)://127.0.0.1:(5173|6500)",
 ]
 openssl_command=""
 

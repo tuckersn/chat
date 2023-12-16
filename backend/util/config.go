@@ -38,6 +38,11 @@ type ConfigAuth struct {
 }
 
 type ConfigHTTP struct {
+	Port           int      `toml:"port"`
+	CertFile       string   `toml:"cert_file"`
+	KeyFile        string   `toml:"key_file"`
+	CorsRegexs     []string `toml:"cors_regexs"`
+	OpensslCommand string   `toml:"openssl_command"`
 }
 
 type ConfigDatabase struct {
@@ -57,26 +62,6 @@ type ConfigOpenAI struct {
 }
 
 var Config ConfigTomlFile = ConfigTomlFile{}
-
-func LoadConfigOnStartup() {
-	exePath, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-
-	exeDir := filepath.Dir(exePath)
-	configFilePath := filepath.Join(exeDir, "Config.toml")
-
-	configFile, err := os.Open(configFilePath)
-	if err != nil {
-		panic(err)
-	}
-
-	err = toml.NewDecoder(configFile).Decode(&Config)
-	if err != nil {
-		panic(err)
-	}
-}
 
 func GetStorageDir(pathStr string) string {
 	if !_storageDirInitialized {
@@ -110,4 +95,34 @@ func IsMainNode() bool {
 
 func GetRedirectBaseUrl() string {
 	return os.Getenv("CR_REDIRECT_URL")
+}
+
+func LoadConfigOnStartup() {
+	exePath, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+
+	exeDir := filepath.Dir(exePath)
+	configFilePath := filepath.Join(exeDir, "Config.toml")
+
+	configFile, err := os.Open(configFilePath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = toml.NewDecoder(configFile).Decode(&Config)
+	if err != nil {
+		panic(err)
+	}
+
+	http := &Config.Http
+	{
+		if http.CertFile == "" {
+			http.CertFile = GetStorageDir("cert.crt")
+		}
+		if http.KeyFile == "" {
+			http.KeyFile = GetStorageDir("cert.key")
+		}
+	}
 }
