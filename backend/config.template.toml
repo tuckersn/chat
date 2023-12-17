@@ -1,5 +1,6 @@
 production=false
 main_node=true
+timezone="UTC"
 
 storage_dir="~/.chatroom"
 redirect_base_url="localhost:5173"
@@ -7,6 +8,13 @@ api_base_url="https://localhost:6500"
 
 [Auth]
 token_secret=""
+token_issuer="chatroom"
+token_audience="chatroom"
+token_expiry_seconds=43200 # 12 hours
+
+[Notes]
+directory="~/.chatroom/notes"
+
 
 
 [HTTP]
@@ -24,11 +32,11 @@ openssl_command=""
 [Database]
 host="127.0.0.1"
 port=5432
-user="postgres"
+username="postgres"
 password="postgres"
 database="chatroom"
 schema="public"
-ssl_mode="disable"
+ssl_mode=""
 
 
 

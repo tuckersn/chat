@@ -13,16 +13,15 @@ import (
 )
 
 var notesDirectory string = func() string {
-	env := os.Getenv("PAGES_DIRECTORY")
-	if env == "" {
+	dirPath := util.Config.Notes.Directory
+	if dirPath == "" {
 		working_dir, err := os.Getwd()
 		if err != nil {
 			panic(err)
 		}
-		env = path.Join(working_dir, "notes")
-		return env
+		return path.Join(working_dir, "notes")
 	}
-	return env
+	return dirPath
 }()
 
 func ValidateNotePath(notePath string) byte {

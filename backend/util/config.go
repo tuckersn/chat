@@ -3,26 +3,25 @@ package util
 import (
 	"errors"
 	"os"
-	"os/user"
 	"path"
 	"path/filepath"
-	"regexp"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
 var _storageDirInitialized = false
 var StorageDir []string = []string{}
-var SlashesRegex *regexp.Regexp = regexp.MustCompile(`[/\\]+`)
 
 type ConfigTomlFile struct {
 	Production      bool   `toml:"production"`
 	MainNode        bool   `toml:"main_node"`
+	Timezone        string `toml:"timezone"`
 	StorageDir      string `toml:"storage_dir"`
 	RedirectBaseUrl string `toml:"redirect_base_url"`
 	ApiBaseUrl      string `toml:"api_base_url"`
 
 	Auth     ConfigAuth     `toml:"Auth"`
+	Notes    ConfigNotes    `toml:"Notes"`
 	Http     ConfigHTTP     `toml:"HTTP"`
 	Database ConfigDatabase `toml:"Database"`
 	GitLab   ConfigGitLab   `toml:"GitLab"`
@@ -37,6 +36,10 @@ type ConfigAuth struct {
 	TokenExpirySeconds int    `toml:"token_expiry_seconds"`
 }
 
+type ConfigNotes struct {
+	Directory string `toml:"directory"`
+}
+
 type ConfigHTTP struct {
 	Port           int      `toml:"port"`
 	CertFile       string   `toml:"cert_file"`
@@ -46,33 +49,42 @@ type ConfigHTTP struct {
 }
 
 type ConfigDatabase struct {
+	Username string                 `toml:"username"`
+	Password string                 `toml:"password"`
+	Host     string                 `toml:"host"`
+	Port     int                    `toml:"port"`
+	Database string                 `toml:"database"`
+	Schema   string                 `toml:"schema"`
+	SSLMode  string                 `toml:"sslmode"`
 	PGVector ConfigDatabasePGVector `toml:"PGVector"`
 }
 
 type ConfigDatabasePGVector struct {
+	Enabled bool `toml:"enabled"`
 }
 
 type ConfigGitLab struct {
+	AuthEnabled   bool   `toml:"auth_enabled"`
+	AuthAppId     string `toml:"auth_app_id"`
+	AuthAppSecret string `toml:"auth_app_secret"`
+	InstanceUrl   string `toml:"instance_url"`
 }
 
 type ConfigGoogle struct {
+	AuthEnabled   bool   `toml:"auth_enabled"`
+	AuthAppId     string `toml:"auth_app_id"`
+	AuthAppSecret string `toml:"auth_app_secret"`
 }
 
 type ConfigOpenAI struct {
+	APIKey string `toml:"api_key"`
 }
 
 var Config ConfigTomlFile = ConfigTomlFile{}
 
 func GetStorageDir(pathStr string) string {
 	if !_storageDirInitialized {
-		StorageDir = SlashesRegex.Split(Config.StorageDir, -1)
-		if StorageDir[0] == "~" {
-			usr, err := user.Current()
-			if err != nil {
-				panic(errors.New("Error getting current user"))
-			}
-			StorageDir = append(SlashesRegex.Split(usr.HomeDir, -1), StorageDir[1:]...)
-		}
+		StorageDir = SmartPathFromStr(Config.StorageDir)
 	}
 	return path.Join(append(StorageDir, pathStr)...)
 }
@@ -89,12 +101,8 @@ func CreateStorageDirectoryIfNotExists() {
 	}
 }
 
-func IsMainNode() bool {
-	return os.Getenv("MAIN_NODE") == "true"
-}
-
 func GetRedirectBaseUrl() string {
-	return os.Getenv("CR_REDIRECT_URL")
+	return Config.RedirectBaseUrl
 }
 
 func LoadConfigOnStartup() {
@@ -123,6 +131,31 @@ func LoadConfigOnStartup() {
 		}
 		if http.KeyFile == "" {
 			http.KeyFile = GetStorageDir("cert.key")
+		}
+	}
+
+	db := &Config.Database
+	{
+		if db.Username == "" {
+			db.Username = "postgres"
+		}
+		if db.Password == "" {
+			db.Password = "postgres"
+		}
+		if db.Database == "" {
+			db.Database = "chatroom"
+		}
+		if db.Schema == "" {
+			db.Schema = "public"
+		}
+		if db.Host == "" {
+			db.Host = "localhost"
+		}
+		if db.Port == 0 {
+			db.Port = 5432
+		}
+		if db.SSLMode == "" {
+			db.SSLMode = "require"
 		}
 	}
 }

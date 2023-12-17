@@ -1,9 +1,11 @@
 package auth
 
-import "os"
+import (
+	"github.com/tuckersn/chatbackend/util"
+)
 
 func GetTokenSecret() string {
-	secret := os.Getenv("CR_TOKEN_SECRET")
+	secret := util.Config.Auth.TokenSecret
 	if secret == "" {
 		panic("CR_TOKEN_SECRET not set")
 	}

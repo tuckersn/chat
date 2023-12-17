@@ -21,7 +21,6 @@ import (
 	"github.com/tuckersn/chatbackend/api"
 	_ "github.com/tuckersn/chatbackend/docs"
 	docs "github.com/tuckersn/chatbackend/docs"
-	"github.com/tuckersn/chatbackend/google"
 	"github.com/tuckersn/chatbackend/util"
 )
 
@@ -144,11 +143,11 @@ func httpServer() {
 	loginRouter := r.Group("/login")
 	{
 		loginRouter.GET("/recent", api.HttpLoginRecent)
-		if os.Getenv("CR_GITLAB_ENABLED") == "true" {
+		if util.Config.GitLab.AuthEnabled {
 			loginRouter.GET("/gitlab", api.HttpLoginGitlabRedirect)
 			loginRouter.GET("/gitlab/receive", api.HttpLoginGitlabReceive)
 		}
-		if google.GetGoogleAuthEnabled() {
+		if util.Config.Google.AuthEnabled {
 			loginRouter.GET("/google", api.HttpLoginGoogle)
 			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceiveToken)
 		}

@@ -36,7 +36,7 @@ func HttpLoginGoogle(c *gin.Context) {
 	}
 
 	values := url.Values{}
-	values.Add("client_id", google.GetGoogleAppId())
+	values.Add("client_id", util.Config.Google.AuthAppId)
 	values.Add("redirect_uri", "https://"+c.Request.Host+"/login/google/receive")
 	values.Add("response_type", "code")
 	values.Add("scope", strings.Join(google.OAUTH_ID_SCOPES, " "))
@@ -74,8 +74,8 @@ func HttpLoginGoogleReceiveToken(c *gin.Context) {
 
 	reqBody := map[string]string{
 		"code":          code,
-		"client_id":     google.GetGoogleAppId(),
-		"client_secret": google.GetGoogleAppSecret(),
+		"client_id":     util.Config.Google.AuthAppId,
+		"client_secret": util.Config.Google.AuthAppSecret,
 		"redirect_uri":  "https://" + c.Request.Host + "/login/google/receive",
 		"grant_type":    "authorization_code",
 	}
@@ -137,7 +137,7 @@ func HttpLoginGoogleReceiveToken(c *gin.Context) {
 		return
 	}
 
-	if id_token.Aud != google.GetGoogleAppId() {
+	if id_token.Aud != util.Config.Google.AuthAppId {
 		log.Println(err)
 		c.JSON(400, gin.H{
 			"error": "Invalid id_token",

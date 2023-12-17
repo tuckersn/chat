@@ -1,7 +1,7 @@
 package openai
 
-import "os"
+import "github.com/tuckersn/chatbackend/util"
 
 func APIKey() string {
-	return os.Getenv("CR_PG_PGVECTOR_ENABLED")
+	return util.Config.OpenAI.APIKey
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/buger/jsonparser"
 )
@@ -30,7 +29,7 @@ type EmbeddingsResponse struct {
 func GenerateEmbeddings(content string) (*EmbeddingsResponse, error) {
 	var client = &http.Client{}
 	var req, _ = http.NewRequest("GET", "https://api.openai.com/v1/embeddings", nil)
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+	req.Header.Set("Authorization", "Bearer "+APIKey())
 	var resp, err = client.Do(req)
 	if err != nil {
 		return nil, err

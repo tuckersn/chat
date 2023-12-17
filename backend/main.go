@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -16,7 +15,7 @@ import (
 
 func main() {
 
-	var logger = log.New(os.Stdout, "[START]", log.LstdFlags|log.Lshortfile)
+	logger := log.New(os.Stdout, "[START]", log.LstdFlags|log.Lshortfile)
 
 	logger.Println("Loading env file")
 	err := godotenv.Load()
@@ -25,19 +24,28 @@ func main() {
 		panic(err)
 	}
 
+	logger.Println("Loading config")
 	util.LoadConfigOnStartup()
 
-	fmt.Println("Storage dir: " + util.GetStorageDir(""))
+	logger.Println("Storage dir: " + util.GetStorageDir(""))
 	util.CreateStorageDirectoryIfNotExists()
 
-	s := gocron.NewScheduler(time.UTC)
+	logger.Println("Initializing cron scheduler")
+	cron := func() gocron.Scheduler {
+		timezone, err := time.LoadLocation(util.Config.Timezone)
+		if err != nil {
+			panic(err)
+		}
+		return *gocron.NewScheduler(timezone)
+	}()
 
 	logger.Println("Initializing database connection")
-	db.InitializeDatabaseConnection(s)
+	db.InitializeDatabaseConnection(&cron)
 
 	var models []openai.ModelResponse
 	models, err = openai.GetModels()
-	fmt.Println(models)
+	logger.Println("Models:", models)
 
+	cron.StartAsync()
 	httpServer()
 }

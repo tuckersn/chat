@@ -1,19 +1,21 @@
 package gitlab
 
-import "os"
+import (
+	"github.com/tuckersn/chatbackend/util"
+)
 
 func Enabled() bool {
-	return os.Getenv("CR_GITLAB_ENABLED") == "true"
+	return util.Config.GitLab.AuthEnabled
 }
 
 func HostURL() string {
-	return os.Getenv("CR_GITLAB_URL")
+	return util.Config.GitLab.InstanceUrl
 }
 
 func GetAppId() string {
-	return os.Getenv("CR_GITLAB_APP_ID")
+	return util.Config.GitLab.AuthAppId
 }
 
 func GetAppSecret() string {
-	return os.Getenv("CR_GITLAB_APP_SECRET")
+	return util.Config.GitLab.AuthAppSecret
 }

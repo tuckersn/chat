@@ -1,18 +1,22 @@
 package db
 
 import (
-	"os"
+	"fmt"
 
 	"github.com/tuckersn/chatbackend/openai"
+	"github.com/tuckersn/chatbackend/util"
 )
 
 func SetDatabaseSetting(key string, value any) {
+
+	valueStr := fmt.Sprint(value)
+
 	Con.MustExec(`
 		INSERT INTO database_settings (key, value)
 		VALUES ($1, $2)
 		ON CONFLICT(key) DO UPDATE
 		SET value = $2
-	`, key, value)
+	`, key, valueStr)
 }
 
 /*
@@ -33,10 +37,10 @@ func TableInitDatabaseSettings(context TableInitContext) {
 
 	SetDatabaseSetting("version", 1)
 
-	if os.Getenv("PRODUCTION") != "" {
-		SetDatabaseSetting("environment", os.Getenv("PRODUCTION"))
+	if util.Config.Production {
+		SetDatabaseSetting("environment", "\"production\"")
 	} else {
-		SetDatabaseSetting("environment", "development")
+		SetDatabaseSetting("environment", "\"development\"")
 	}
 
 	if openai.APIKey() != "" {

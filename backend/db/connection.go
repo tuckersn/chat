@@ -9,6 +9,7 @@ import (
 	"github.com/go-co-op/gocron"
 	"github.com/jmoiron/sqlx"
 	"github.com/tuckersn/chatbackend/openai"
+	"github.com/tuckersn/chatbackend/util"
 )
 
 var Con *sqlx.DB = nil
@@ -44,10 +45,6 @@ var Tables = []Table{
 	{"webhook_result", TableInitWebhookResult},
 }
 
-func IsPGVectorEnabled() bool {
-	return os.Getenv("CR_PG_PGVECTOR_ENABLED") == "true"
-}
-
 var databaseInitialized = false
 
 func InitializeDatabaseConnection(cron *gocron.Scheduler) {
@@ -57,52 +54,31 @@ func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 	}
 	databaseInitialized = true
 
-	var log = log.New(os.Stdout, "[START][DB]", log.LstdFlags|log.Lshortfile)
+	log := log.New(os.Stdout, "[START][DB]", log.LstdFlags|log.Lshortfile)
+	dbConf := util.Config.Database
 
-	username := os.Getenv("CHATROOM_POSTGRES_USER")
-	if username == "" {
-		username = "postgres"
-	}
-	password := os.Getenv("CHATROOM_POSTGRES_PASSWORD")
-	if password == "" {
-		password = "postgres"
-	}
-	database := os.Getenv("CHATROOM_POSTGRES_DATABASE")
-	if database == "" {
-		database = "chatroom"
-	}
-	schema := os.Getenv("CHATROOM_POSTGRES_SCHEMA")
-	if schema == "" {
-		schema = "public"
-	}
-	host := os.Getenv("CHATROOM_POSTGRES_HOST")
-	if host == "" {
-		host = "localhost"
-	}
-	port := os.Getenv("CHATROOM_POSTGRES_PORT")
-	if port == "" {
-		port = "5432"
-	}
-	sslmode := os.Getenv("CHATROOM_POSTGRES_SSLMODE")
-	if sslmode == "" {
-		sslmode = "enable"
-	}
-
-	log.Printf("Connecting to database %s:%s", host, port)
+	log.Printf("Connecting to database %s:%d", dbConf.Host, dbConf.Port)
 	var err error
-	Con, err = sqlx.Connect("postgres", fmt.Sprintf("user=%s password=%s database=%s host=%s port=%s sslmode=%s", username, password, database, host, port, sslmode))
+	Con, err = sqlx.Connect("postgres",
+		fmt.Sprintf("user=%s password=%s database=%s host=%s port=%d sslmode=%s",
+			dbConf.Username,
+			dbConf.Password,
+			dbConf.Database,
+			dbConf.Host,
+			dbConf.Port,
+			dbConf.SSLMode))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Checking for %s schema", schema)
+	log.Printf("Checking for %s schema", dbConf.Schema)
 
 	var schemaName string
 	err = Con.Get(&schemaName, `
 		SELECT schema_name
 		FROM information_schema.schemata
 		WHERE schema_name = $1;
-		`, schema)
+		`, dbConf.Schema)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -112,22 +88,22 @@ func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 		}
 	}
 
-	if schemaName != schema {
-		log.Printf("Creating schema %s", schema)
-		_, err = Con.Exec(fmt.Sprintf("CREATE SCHEMA %s", schema))
+	if schemaName != dbConf.Schema {
+		log.Printf("Creating schema %s", dbConf.Schema)
+		_, err = Con.Exec(fmt.Sprintf("CREATE SCHEMA %s", dbConf.Schema))
 		if err != nil {
 			log.Fatalln(err)
 		}
 	}
 
-	log.Printf("SET search_path TO %s", schema)
-	_, err = Con.Exec(fmt.Sprintf("SET search_path TO %s", schema))
+	log.Printf("SET search_path TO %s", dbConf.Schema)
+	_, err = Con.Exec(fmt.Sprintf("SET search_path TO %s", dbConf.Schema))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	var shared TableSharedContext = TableSharedContext{
-		VectorsEnabled: IsPGVectorEnabled(),
+		VectorsEnabled: util.Config.Database.PGVector.Enabled,
 		OpenAIEnabled:  openai.APIKey() != "",
 	}
 	if shared.VectorsEnabled {

@@ -1,15 +1,11 @@
 package google
 
-import "os"
+import (
+	"github.com/tuckersn/chatbackend/util"
+)
 
-func GetGoogleAppId() string {
-	return os.Getenv("CR_GOOGLE_APP_ID")
-}
+var Config = &util.Config.Google
 
-func GetGoogleAppSecret() string {
-	return os.Getenv("CR_GOOGLE_APP_SECRET")
-}
-
-func GetGoogleAuthEnabled() bool {
-	return os.Getenv("CR_GOOGLE_AUTH_ENABLED") == "true"
+func AuthEnabled() bool {
+	return util.Config.Google.AuthEnabled
 }
