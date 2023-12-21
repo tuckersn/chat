@@ -88,3 +88,13 @@ func GetUserIdentityGoogleByGoogleId(google_id string) (RecordUserIdentityGoogle
 	}
 	return record, nil
 }
+
+func DeleteIdentityGoogleByUserId(user_id int32) error {
+	_, err := Con.Exec(`
+		DELETE FROM user_identity_google WHERE user_id = $1
+	`, user_id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

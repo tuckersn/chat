@@ -89,6 +89,15 @@ func generateSelfSignedCert() {
 func httpServer() {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = ""
+	docs.SwaggerInfo.Schemes = []string{util.Config.Http.Scheme}
+
+	if util.Config.Http.Port == 443 && util.Config.Http.Scheme == "https" {
+		docs.SwaggerInfo.Host = util.Config.Http.Host
+	} else if util.Config.Http.Port == 80 && util.Config.Http.Scheme == "http" {
+		docs.SwaggerInfo.Host = util.Config.Http.Host
+	} else {
+		docs.SwaggerInfo.Host = util.Config.Http.Host + ":" + fmt.Sprint(util.Config.Http.Port)
+	}
 
 	r.Use(cors.New(cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -126,9 +135,9 @@ func httpServer() {
 			userRouter.POST("/id/*username", api.HttpUserUpdate)
 			userRouter.DELETE("/id/*username", api.HttpUserDelete)
 		}
-		serverRouter := apiRouter.Group("/server")
+		systemRouter := apiRouter.Group("/system")
 		{
-			serverRouter.GET("/ping", api.HttpPing)
+			systemRouter.GET("/ping", api.HttpPing)
 		}
 		webhookRouter := apiRouter.Group("/webhook")
 		{
@@ -148,8 +157,8 @@ func httpServer() {
 			loginRouter.GET("/gitlab/receive", api.HttpLoginGitlabReceive)
 		}
 		if util.Config.Google.AuthEnabled {
-			loginRouter.GET("/google", api.HttpLoginGoogle)
-			loginRouter.GET("/google/receive", api.HttpLoginGoogleReceiveToken)
+			loginRouter.GET("/google", api.HttpLoginGoogleRedirect)
+			loginRouter.GET("/google/receive", api.HttpLoginGoogleRedirectReceive)
 		}
 	}
 

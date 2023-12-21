@@ -13,6 +13,16 @@ import (
 	"github.com/tuckersn/chatbackend/util"
 )
 
+// @title Chat Backend API
+// @license.name MIT
+// @in header
+// @name Authorization
+// @securitydefinitions.oauth2.application OAuth2Application
+// @tokenUrl https://example.com/oauth/token
+// @scope.write Grants write access
+// @scope.admin Grants read and write access to administrative information
+// @externalDocs.url https://github.com/tuckersn/chat
+// @license.url https://github.com/tuckersn/chat/blob/main/LICENSE
 func main() {
 
 	logger := log.New(os.Stdout, "[START]", log.LstdFlags|log.Lshortfile)
@@ -20,8 +30,7 @@ func main() {
 	logger.Println("Loading env file")
 	err := godotenv.Load()
 	if err != nil {
-		logger.Println("Error loading .env file")
-		panic(err)
+		logger.Println("Warning: No .env file was provided")
 	}
 
 	logger.Println("Loading config")

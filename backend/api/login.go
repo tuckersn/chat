@@ -7,8 +7,8 @@ import (
 )
 
 // HttpLoginRecent godoc
-// @Summary gets a list of recent logins for the user's account
-// @Description gets a list of recent logins for the user's account
+// @Summary Gets your recent logins (up to 10)
+// @Description gets a list of recent logins for provided token's associated user.
 // @Tags Login
 // @Accept json
 // @Produce json

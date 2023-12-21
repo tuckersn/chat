@@ -10,14 +10,17 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
+        "license": {
+            "name": "MIT"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/message/id/:messageId": {
+        "/api/message/id/:messageKey": {
             "get": {
-                "description": "deletes a message",
+                "description": "Get the Message with the given id (messageKey)",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,7 +30,7 @@ const docTemplate = `{
                 "tags": [
                     "Message API"
                 ],
-                "summary": "get a message",
+                "summary": "Get a Message",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -35,7 +38,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "deletes a message",
+                "description": "Deletes a Message",
                 "consumes": [
                     "application/json"
                 ],
@@ -45,7 +48,7 @@ const docTemplate = `{
                 "tags": [
                     "Message API"
                 ],
-                "summary": "deletes a message",
+                "summary": "Deletes a Message",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -55,7 +58,7 @@ const docTemplate = `{
         },
         "/api/note/:path": {
             "get": {
-                "description": "returns the content of a note based on it's path",
+                "description": "Returns the content of a Note based on it's path",
                 "consumes": [
                     "application/json"
                 ],
@@ -65,7 +68,7 @@ const docTemplate = `{
                 "tags": [
                     "Note API"
                 ],
-                "summary": "returns the content of a note",
+                "summary": "Returns the content of a Note",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -76,9 +79,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/room/:roomId/message": {
+        "/api/room/:roomKey/message": {
             "post": {
-                "description": "deletes a message",
+                "description": "Send a Message to a given Room with the given content",
                 "consumes": [
                     "application/json"
                 ],
@@ -89,7 +92,7 @@ const docTemplate = `{
                     "Message API",
                     "Room API"
                 ],
-                "summary": "send a message to a given room",
+                "summary": "Message a Room",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -97,7 +100,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/server/ping": {
+        "/api/room/id/:roomKey": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room API"
+                ],
+                "summary": "Get a Room's information",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/system/ping": {
             "get": {
                 "description": "says hello to the server, used for overview page",
                 "consumes": [
@@ -107,7 +129,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Server API"
+                    "System API"
                 ],
                 "summary": "ping the server, used for overview page",
                 "responses": {
@@ -241,7 +263,7 @@ const docTemplate = `{
         },
         "/api/webhook": {
             "get": {
-                "description": "returns information about a webhook",
+                "description": "Returns a list of WebHooks this user owns.",
                 "consumes": [
                     "application/json"
                 ],
@@ -251,7 +273,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook API"
                 ],
-                "summary": "list all webhooks controlled by you",
+                "summary": "List WebHooks that you own",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -262,7 +284,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "returns information about a webhook",
+                "description": "[Two Factor Authentication Required] Creates a new WebHook with the provided subscription details.",
                 "consumes": [
                     "application/json"
                 ],
@@ -272,7 +294,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook API"
                 ],
-                "summary": "create a new webhook, if 2FA is enabled it's required",
+                "summary": "[2FA] Create a new WebHook",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -283,9 +305,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/webhook/:webhookId": {
+        "/api/webhook/:webhook": {
             "get": {
-                "description": "returns information about a webhook",
+                "description": "Provided either the key, name, or id returns the details of the webhook.",
                 "consumes": [
                     "application/json"
                 ],
@@ -295,7 +317,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook API"
                 ],
-                "summary": "get's the details of a given webhook",
+                "summary": "Get's the details of a WebHook",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -306,6 +328,7 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "[Two Factor Authentication Required] Updates the details of an existing WebHook at the given WebHook key or id",
                 "consumes": [
                     "application/json"
                 ],
@@ -315,7 +338,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook API"
                 ],
-                "summary": "provided details overwrite the existing webhook",
+                "summary": "[2FA] Update the details of an existing WebHook",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -326,7 +349,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "returns information about a webhook",
+                "description": "[Two Factor Authentication Required] Deletes a WebHook at the given WebHook key or id",
                 "consumes": [
                     "application/json"
                 ],
@@ -336,7 +359,7 @@ const docTemplate = `{
                 "tags": [
                     "Webhook API"
                 ],
-                "summary": "delete's a webhook, if 2FA is set to strict it's required",
+                "summary": "[2FA] Deletes a WebHook",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -367,9 +390,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/login/gitlab/receiveToken": {
+        "/login/google": {
             "get": {
-                "description": "where the user's browser is sent by GitLab after completing the oauth2 flow",
+                "description": "{art 1 of the HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen",
                 "consumes": [
                     "application/json"
                 ],
@@ -379,36 +402,77 @@ const docTemplate = `{
                 "tags": [
                     "Login"
                 ],
-                "summary": "handles GitLab oauth2 callback",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The code returned by GitLab",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "The state returned by GitLab",
-                        "name": "state",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
+                "summary": "HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/api.GitLabReceiveTokenReponse"
-                        }
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/login/google/disconnect": {
+            "delete": {
+                "description": "[Two Factor Authentication Required] Removes your Google identity record from your account. This will prevent you from logging in with Google.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "[2FA] Removes your Google account information from your account.",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/login/google/receive": {
+            "get": {
+                "description": "Part 2 of the HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Redirect URI receiving address for Googl'e OAuth 2.0 flow",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/login/recent": {
+            "get": {
+                "description": "gets a list of recent logins for provided token's associated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Gets your recent logins (up to 10)",
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
         },
         "/note/:path": {
             "post": {
-                "description": "creates a note based on it's path",
+                "description": "Writes the provided content to the Note path provided in the url",
                 "consumes": [
                     "application/json"
                 ],
@@ -418,7 +482,7 @@ const docTemplate = `{
                 "tags": [
                     "Note API"
                 ],
-                "summary": "creates a note",
+                "summary": "Writes a Note",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -429,7 +493,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "deletes a note based on it's path",
+                "description": "Deletes a note based on it's path",
                 "consumes": [
                     "application/json"
                 ],
@@ -439,7 +503,7 @@ const docTemplate = `{
                 "tags": [
                     "Note API"
                 ],
-                "summary": "deletes a note",
+                "summary": "Deletes a note",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -452,9 +516,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.GitLabReceiveTokenReponse": {
-            "type": "object"
-        },
         "api.UserCreateRequest": {
             "type": "object",
             "properties": {
@@ -480,6 +541,17 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "OAuth2Application": {
+            "type": "oauth2",
+            "flow": "application",
+            "tokenUrl": "https://example.com/oauth/token",
+            "scopes": {
+                "admin": " Grants read and write access to administrative information",
+                "write": " Grants write access"
+            }
+        }
     }
 }`
 
@@ -489,7 +561,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
+	Title:            "Chat Backend API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

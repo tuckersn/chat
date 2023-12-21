@@ -20,15 +20,17 @@ import (
 	gosql "database/sql"
 )
 
-// HttpLoginGoogle godoc
-// @Summary redirects browser to the Google OAuth consent screen
-// @Description https://developers.google.com/identity/protocols/oauth2/web-server#httprest
+// HttpLoginGoogleRedirect godoc
+// @Summary HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen
+// @Description {art 1 of the HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen
+// https://developers.google.com/identity/protocols/oauth2/web-server#httprest
 // @Tags Login
 // @Accept json
 // @Produce json
 // @Success 200
 // @Router /login/google [get]
-func HttpLoginGoogle(c *gin.Context) {
+func HttpLoginGoogleRedirect(c *gin.Context) {
+
 	csrf_token := util.RandomString(64, []string{util.ALPHABET_ALPHANUMERIC})
 	err := db.InsertUserIdentityGoogleRequest(csrf_token, c.Request.Host)
 	if err != nil {
@@ -48,15 +50,16 @@ func HttpLoginGoogle(c *gin.Context) {
 	c.Redirect(302, fmt.Sprintf("https://accounts.google.com/o/oauth2/v2/auth?%s", values.Encode()))
 }
 
-// HttpLoginGoogleReceiveToken godoc
-// @Summary Receives the response of the Google OAuth consent screen
-// @Description https://developers.google.com/identity/protocols/oauth2/web-server#httprest
+// HttpLoginGoogleRedirectReceive godoc
+// @Summary Redirect URI receiving address for Googl'e OAuth 2.0 flow
+// @Description Part 2 of the HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen
+// https://developers.google.com/identity/protocols/oauth2/web-server#httprest
 // @Tags Login
 // @Accept json
 // @Produce json
 // @Success 200
 // @Router /login/google/receive [get]
-func HttpLoginGoogleReceiveToken(c *gin.Context) {
+func HttpLoginGoogleRedirectReceive(c *gin.Context) {
 	code := c.Query("code")
 	state := c.Query("state")
 
@@ -207,4 +210,30 @@ func HttpLoginGoogleReceiveToken(c *gin.Context) {
 	}
 
 	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
+}
+
+// HttpLoginGoogleDisconnect godoc
+// @Summary [2FA] Removes your Google account information from your account.
+// @Description [Two Factor Authentication Required] Removes your Google identity record from your account. This will prevent you from logging in with Google.
+// @Tags Login
+// @Accept json
+// @Produce json
+// @Success 200
+// @Router /login/google/disconnect [delete]
+func HttpLoginGoogleDisconnect(c *gin.Context) {
+	user, err := auth.HttpAuthResponseHandled(c)
+	if err != nil {
+		return // error handled in auth.HttpAuthWithResponse
+	}
+
+	///TODO: consider moving to a multi-account system and using TOTP.
+
+	err = db.DeleteIdentityGoogleByUserId(user.UserId)
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+	})
 }

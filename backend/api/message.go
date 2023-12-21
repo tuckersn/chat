@@ -9,9 +9,9 @@ import (
 )
 
 // HttpMessageGet godoc
-// @Summary get a message
-// @Schemes get a message and it's content / other data
-// @Description deletes a message
+// @Summary Get a Message
+// @Schemes
+// @Description Get the Message with the given id (messageKey)
 // @Tags Message API
 // @Accept json
 // @Produce json
@@ -34,9 +34,9 @@ func HttpMessageGet(c *gin.Context) {
 }
 
 // HttpMessageDelete godoc
-// @Summary deletes a message
+// @Summary Deletes a Message
 // @Schemes
-// @Description deletes a message
+// @Description Deletes a Message
 // @Tags Message API
 // @Accept json
 // @Produce json
@@ -59,9 +59,9 @@ func HttpMessageDelete(c *gin.Context) {
 }
 
 // HttpMessageRoom godoc
-// @Summary send a message to a given room
+// @Summary Message a Room
 // @Schemes
-// @Description deletes a message
+// @Description Send a Message to a given Room with the given content
 // @Tags Message API, Room API
 // @Accept json
 // @Produce json

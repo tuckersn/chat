@@ -18,7 +18,6 @@ type ConfigTomlFile struct {
 	Timezone        string `toml:"timezone"`
 	StorageDir      string `toml:"storage_dir"`
 	RedirectBaseUrl string `toml:"redirect_base_url"`
-	ApiBaseUrl      string `toml:"api_base_url"`
 
 	Auth     ConfigAuth     `toml:"Auth"`
 	Notes    ConfigNotes    `toml:"Notes"`
@@ -41,6 +40,8 @@ type ConfigNotes struct {
 }
 
 type ConfigHTTP struct {
+	Scheme         string   `toml:"scheme"` // http or https
+	Host           string   `toml:"host"`
 	Port           int      `toml:"port"`
 	CertFile       string   `toml:"cert_file"`
 	KeyFile        string   `toml:"key_file"`

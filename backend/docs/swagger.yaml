@@ -1,6 +1,4 @@
 definitions:
-  api.GitLabReceiveTokenReponse:
-    type: object
   api.UserCreateRequest:
     properties:
       admin:
@@ -19,37 +17,40 @@ definitions:
     type: object
 info:
   contact: {}
+  license:
+    name: MIT
+  title: Chat Backend API
 paths:
-  /api/message/id/:messageId:
+  /api/message/id/:messageKey:
     delete:
       consumes:
       - application/json
-      description: deletes a message
+      description: Deletes a Message
       produces:
       - application/json
       responses:
         "200":
           description: OK
-      summary: deletes a message
+      summary: Deletes a Message
       tags:
       - Message API
     get:
       consumes:
       - application/json
-      description: deletes a message
+      description: Get the Message with the given id (messageKey)
       produces:
       - application/json
       responses:
         "200":
           description: OK
-      summary: get a message
+      summary: Get a Message
       tags:
       - Message API
   /api/note/:path:
     get:
       consumes:
       - application/json
-      description: returns the content of a note based on it's path
+      description: Returns the content of a Note based on it's path
       produces:
       - application/json
       responses:
@@ -57,24 +58,36 @@ paths:
           description: OK
           schema:
             type: string
-      summary: returns the content of a note
+      summary: Returns the content of a Note
       tags:
       - Note API
-  /api/room/:roomId/message:
+  /api/room/:roomKey/message:
     post:
       consumes:
       - application/json
-      description: deletes a message
+      description: Send a Message to a given Room with the given content
       produces:
       - application/json
       responses:
         "200":
           description: OK
-      summary: send a message to a given room
+      summary: Message a Room
       tags:
       - Message API
       - Room API
-  /api/server/ping:
+  /api/room/id/:roomKey:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Get a Room's information
+      tags:
+      - Room API
+  /api/system/ping:
     get:
       consumes:
       - application/json
@@ -86,7 +99,7 @@ paths:
           description: OK
       summary: ping the server, used for overview page
       tags:
-      - Server API
+      - System API
   /api/user:
     post:
       consumes:
@@ -171,7 +184,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: returns information about a webhook
+      description: Returns a list of WebHooks this user owns.
       produces:
       - application/json
       responses:
@@ -179,13 +192,14 @@ paths:
           description: OK
           schema:
             type: string
-      summary: list all webhooks controlled by you
+      summary: List WebHooks that you own
       tags:
       - Webhook API
     post:
       consumes:
       - application/json
-      description: returns information about a webhook
+      description: '[Two Factor Authentication Required] Creates a new WebHook with
+        the provided subscription details.'
       produces:
       - application/json
       responses:
@@ -193,14 +207,15 @@ paths:
           description: OK
           schema:
             type: string
-      summary: create a new webhook, if 2FA is enabled it's required
+      summary: '[2FA] Create a new WebHook'
       tags:
       - Webhook API
-  /api/webhook/:webhookId:
+  /api/webhook/:webhook:
     delete:
       consumes:
       - application/json
-      description: returns information about a webhook
+      description: '[Two Factor Authentication Required] Deletes a WebHook at the
+        given WebHook key or id'
       produces:
       - application/json
       responses:
@@ -208,13 +223,14 @@ paths:
           description: OK
           schema:
             type: string
-      summary: delete's a webhook, if 2FA is set to strict it's required
+      summary: '[2FA] Deletes a WebHook'
       tags:
       - Webhook API
     get:
       consumes:
       - application/json
-      description: returns information about a webhook
+      description: Provided either the key, name, or id returns the details of the
+        webhook.
       produces:
       - application/json
       responses:
@@ -222,12 +238,14 @@ paths:
           description: OK
           schema:
             type: string
-      summary: get's the details of a given webhook
+      summary: Get's the details of a WebHook
       tags:
       - Webhook API
     post:
       consumes:
       - application/json
+      description: '[Two Factor Authentication Required] Updates the details of an
+        existing WebHook at the given WebHook key or id'
       produces:
       - application/json
       responses:
@@ -235,7 +253,7 @@ paths:
           description: OK
           schema:
             type: string
-      summary: provided details overwrite the existing webhook
+      summary: '[2FA] Update the details of an existing WebHook'
       tags:
       - Webhook API
   /login/gitlab:
@@ -252,38 +270,66 @@ paths:
       summary: handles GitLab oauth2 callback
       tags:
       - Login
-  /login/gitlab/receiveToken:
+  /login/google:
     get:
       consumes:
       - application/json
-      description: where the user's browser is sent by GitLab after completing the
-        oauth2 flow
-      parameters:
-      - description: The code returned by GitLab
-        in: query
-        name: code
-        required: true
-        type: string
-      - description: The state returned by GitLab
-        in: query
-        name: state
-        required: true
-        type: string
+      description: '{art 1 of the HTTP redirect to Google''s OpenID Connect (OAuth
+        2.0) consent screen'
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/api.GitLabReceiveTokenReponse'
-      summary: handles GitLab oauth2 callback
+      summary: HTTP redirect to Google's OpenID Connect (OAuth 2.0) consent screen
+      tags:
+      - Login
+  /login/google/disconnect:
+    delete:
+      consumes:
+      - application/json
+      description: '[Two Factor Authentication Required] Removes your Google identity
+        record from your account. This will prevent you from logging in with Google.'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: '[2FA] Removes your Google account information from your account.'
+      tags:
+      - Login
+  /login/google/receive:
+    get:
+      consumes:
+      - application/json
+      description: Part 2 of the HTTP redirect to Google's OpenID Connect (OAuth 2.0)
+        consent screen
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Redirect URI receiving address for Googl'e OAuth 2.0 flow
+      tags:
+      - Login
+  /login/recent:
+    get:
+      consumes:
+      - application/json
+      description: gets a list of recent logins for provided token's associated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Gets your recent logins (up to 10)
       tags:
       - Login
   /note/:path:
     delete:
       consumes:
       - application/json
-      description: deletes a note based on it's path
+      description: Deletes a note based on it's path
       produces:
       - application/json
       responses:
@@ -291,13 +337,13 @@ paths:
           description: OK
           schema:
             type: string
-      summary: deletes a note
+      summary: Deletes a note
       tags:
       - Note API
     post:
       consumes:
       - application/json
-      description: creates a note based on it's path
+      description: Writes the provided content to the Note path provided in the url
       produces:
       - application/json
       responses:
@@ -305,7 +351,15 @@ paths:
           description: OK
           schema:
             type: string
-      summary: creates a note
+      summary: Writes a Note
       tags:
       - Note API
+securityDefinitions:
+  OAuth2Application:
+    flow: application
+    scopes:
+      admin: ' Grants read and write access to administrative information'
+      write: ' Grants write access'
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
 swagger: "2.0"

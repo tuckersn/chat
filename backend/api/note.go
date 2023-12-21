@@ -44,9 +44,9 @@ func ValidateNotePath(notePath string) byte {
 }
 
 // HttpNoteGet godoc
-// @Summary returns the content of a note
+// @Summary Returns the content of a Note
 // @Schemes
-// @Description returns the content of a note based on it's path
+// @Description Returns the content of a Note based on it's path
 // @Tags Note API
 // @Accept json
 // @Produce json
@@ -120,9 +120,9 @@ func HttpNoteGet(c *gin.Context) {
 }
 
 // HttpNotePost godoc
-// @Summary creates a note
+// @Summary Writes a Note
 // @Schemes
-// @Description creates a note based on it's path
+// @Description Writes the provided content to the Note path provided in the url
 // @Tags Note API
 // @Accept json
 // @Produce json
@@ -132,9 +132,9 @@ func HttpNotePost(c *gin.Context) {
 }
 
 // HttpPageDelete godoc
-// @Summary deletes a note
+// @Summary Deletes a note
 // @Schemes
-// @Description deletes a note based on it's path
+// @Description Deletes a note based on it's path
 // @Tags Note API
 // @Accept json
 // @Produce json

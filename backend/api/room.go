@@ -5,7 +5,7 @@ import (
 )
 
 // HttpRoomGet godoc
-// @Summary get a room
+// @Summary Get a Room's information
 // @Tags Room API
 // @Accept json
 // @Produce json

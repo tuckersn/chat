@@ -15,9 +15,9 @@ token_expiry_seconds=43200 # 12 hours
 [Notes]
 directory="~/.chatroom/notes"
 
-
-
 [HTTP]
+scheme="https"
+host="127.0.0.1"
 port=6500
 https_enabled=true
 cert_file=""

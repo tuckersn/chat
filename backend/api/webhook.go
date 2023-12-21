@@ -3,9 +3,9 @@ package api
 import "github.com/gin-gonic/gin"
 
 // HttpWebhookList godoc
-// @Summary list all webhooks controlled by you
+// @Summary List WebHooks that you own
 // @Schemes
-// @Description returns information about a webhook
+// @Description Returns a list of WebHooks this user owns.
 // @Tags Webhook API
 // @Accept json
 // @Produce json
@@ -16,9 +16,9 @@ func HttpWebhookList(r *gin.Context) {
 }
 
 // HttpWebhookCreate godoc
-// @Summary create a new webhook, if 2FA is enabled it's required
+// @Summary [2FA] Create a new WebHook
 // @Schemes
-// @Description returns information about a webhook
+// @Description [Two Factor Authentication Required] Creates a new WebHook with the provided subscription details.
 // @Tags Webhook API
 // @Accept json
 // @Produce json
@@ -29,39 +29,40 @@ func HttpWebhookCreate(r *gin.Context) {
 }
 
 // HttpWebhookGet godoc
-// @Summary get's the details of a given webhook
+// @Summary Get's the details of a WebHook
 // @Schemes
-// @Description returns information about a webhook
+// @Description Provided either the key, name, or id returns the details of the webhook.
 // @Tags Webhook API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookKey [get]
+// @Router /api/webhook/:webhook [get]
 func HttpWebhookGet(r *gin.Context) {
 
 }
 
 // HttpWebhookDelete godoc
-// @Summary delete's a webhook, if 2FA is set to strict it's required
+// @Summary [2FA] Deletes a WebHook
 // @Schemes
-// @Description returns information about a webhook
+// @Description [Two Factor Authentication Required] Deletes a WebHook at the given WebHook key or id
 // @Tags Webhook API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookKey [delete]
+// @Router /api/webhook/:webhook [delete]
 func HttpWebhookDelete(r *gin.Context) {
 
 }
 
 // HttpWebhookUpdate godoc
-// @Summary provided details overwrite the existing webhook
+// @Summary [2FA] Update the details of an existing WebHook
 // @Schemes
+// @Description [Two Factor Authentication Required] Updates the details of an existing WebHook at the given WebHook key or id
 // @Tags Webhook API
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /api/webhook/:webhookKey [post]
+// @Router /api/webhook/:webhook [post]
 func HttpWebhookUpdate(r *gin.Context) {
 
 }
