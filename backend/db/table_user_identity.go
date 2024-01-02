@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"regexp"
 	"time"
@@ -10,16 +11,26 @@ var UserNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 var DisplayNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_ ]+$`)
 var EmailRegex = regexp.MustCompile(`^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+|)$`)
 
+const METADATA_KEY_TOTP_REQUEST = "totp_request"
+
+type RecordUserTotpRequestMetadata struct {
+	Secret      string `db:"secret"`
+	ImageData   string `db:"image_data"`
+	RequestTime int64  `db:"request_time"`
+}
+
 type RecordUser struct {
-	Id          int32      `db:"id"`
-	Username    string     `db:"username"`
-	DisplayName string     `db:"display_name"`
-	Email       *string    `db:"email"`
-	JoinedTime  time.Time  `db:"joined_time"`
-	LastSeen    *time.Time `db:"last_seen"`
-	Activated   bool       `db:"activated"`
-	Admin       bool       `db:"admin"`
-	Metadata    string     `db:"metadata"`
+	Id           int32      `db:"id"`
+	Username     string     `db:"username"`
+	DisplayName  string     `db:"display_name"`
+	Email        *string    `db:"email"`
+	JoinedTime   time.Time  `db:"joined_time"`
+	LastSeen     *time.Time `db:"last_seen"`
+	Activated    bool       `db:"activated"`
+	Admin        bool       `db:"admin"`
+	TotpSecret   []byte     `db:"totp_secret"`
+	TotpVerified bool       `db:"totp_verified"`
+	Metadata     string     `db:"metadata"`
 }
 
 func (user *RecordUser) SetActive(active bool) *RecordUser {
@@ -53,6 +64,8 @@ func TableInitUserIdentity(context TableInitContext) {
 			admin BOOLEAN DEFAULT FALSE,
 			joined_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 			last_seen TIMESTAMP WITH TIME ZONE,
+			totp_secret TEXT DEFAULT NULL,
+			totp_verified BOOLEAN DEFAULT FALSE,
 			metadata JSONB DEFAULT '{}'::JSONB
 		);
 	`)
@@ -80,14 +93,14 @@ func TableInitUserIdentity(context TableInitContext) {
 	/**
 	 * post setup steps
 	 */
-	user, err := InsertUser("admin", "Administrator", "")
+	user, err := InsertUser("admin", "Administrator", "", nil, nil)
 	if err != nil {
 		panic(err)
 	}
 	user.SetActive(true).SetAdmin(true)
 }
 
-func InsertUser(username string, displayName string, email string) (RecordUser, error) {
+func InsertUser(username string, displayName string, email string, totpSecret *string, metadataJson []byte) (RecordUser, error) {
 	if !UserNameRegex.MatchString(username) {
 		return RecordUser{}, errors.New("Invalid username")
 	}
@@ -96,15 +109,27 @@ func InsertUser(username string, displayName string, email string) (RecordUser, 
 		return RecordUser{}, errors.New("Invalid display name")
 	}
 
-	rows, err := Con.NamedQuery(`
-		INSERT INTO user_identity (username, display_name)
-		VALUES (:username, :display_name)
-		RETURNING *
-	`, map[string]interface{}{
+	if len(metadataJson) < 3 {
+		metadataJson = []byte("{}")
+	}
+
+	input := map[string]interface{}{
 		"username":     username,
 		"display_name": displayName,
-	})
+		"email":        email,
+		"totp_secret":  totpSecret,
+		"metadata":     metadataJson,
+	}
 
+	if totpSecret == nil {
+		input["totp_secret"] = sql.NullString{}
+	}
+
+	rows, err := Con.NamedQuery(`
+		INSERT INTO user_identity (username, display_name, email, totp_secret, metadata)
+		VALUES (:username, :display_name, :email, :totp_secret, :metadata)
+		RETURNING *
+	`, input)
 	if err != nil {
 		return RecordUser{}, err
 	}
@@ -159,4 +184,20 @@ func DeleteUser(username string) error {
 func DeleteUserById(id int32) error {
 	_, err := Con.Exec("DELETE FROM user_identity WHERE id = $1", id)
 	return err
+}
+
+func GetTotpRequestMetadata(username string) (RecordUserTotpRequestMetadata, error) {
+	var totpReq RecordUserTotpRequestMetadata
+	err := Con.Get(&totpReq, `
+		SELECT metadata#>>'{totp_request,Secret}' as secret,
+			metadata#>>'{totp_request,ImageData}' as image_data,
+			metadata#>>'{totp_request,RequestTime}' as request_time
+		FROM user_identity 
+		WHERE username = $1
+		`,
+		username)
+	if err != nil {
+		return RecordUserTotpRequestMetadata{}, err
+	}
+	return totpReq, nil
 }

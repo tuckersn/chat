@@ -1,3 +1,5 @@
 .env
 __debug_*
 config.toml
+chatbackend
+chatbackend.exe

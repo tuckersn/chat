@@ -20,6 +20,7 @@ type Token struct {
 	Email       string `json:"email"`
 	DisplayName string `json:"display_name"`
 	Admin       bool   `json:"admin"`
+	TotpState   bool   `json:"totp_state"`
 	JWT         jwt.Token
 	Signed      string `json:"signed"`
 }
@@ -41,6 +42,15 @@ func CreateToken(username string, user_id int32, admin bool) (Token, error) {
 		"display_name": user.DisplayName,
 		"email":        user.Email,
 		"admin":        admin,
+		"totp_state": func() string {
+			if user.TotpSecret == nil {
+				return "none"
+			}
+			if user.TotpVerified {
+				return "verified"
+			}
+			return "unverified"
+		}(),
 	})
 	jwtString, err := jwt.SignedString([]byte(GetTokenSecret()))
 	if err != nil {

@@ -33,6 +33,11 @@ type ConfigAuth struct {
 	TokenIssuer        string `toml:"token_issuer"`
 	TokenAudience      string `toml:"token_audience"`
 	TokenExpirySeconds int    `toml:"token_expiry_seconds"`
+	CookieMaxAge       int    `toml:"cookie_max_age"`
+	/// Default: true
+	CookieSecure bool `toml:"cookie_secure"`
+	/// Default: true
+	CookieHttpOnly bool `toml:"cookie_http_only"`
 }
 
 type ConfigNotes struct {
@@ -157,6 +162,16 @@ func LoadConfigOnStartup() {
 		}
 		if db.SSLMode == "" {
 			db.SSLMode = "require"
+		}
+	}
+
+	auth := &Config.Auth
+	{
+		if auth.CookieHttpOnly == false {
+			auth.CookieHttpOnly = true
+		}
+		if auth.CookieSecure == false {
+			auth.CookieSecure = true
 		}
 	}
 }

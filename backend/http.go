@@ -162,6 +162,11 @@ func httpServer() {
 		}
 	}
 
+	asset := r.Group("/asset")
+	{
+		asset.GET("/totp_request.png", api.HttpTotpImageFile)
+	}
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	if _, err := os.Stat(util.Config.Http.CertFile); os.IsNotExist(err) {

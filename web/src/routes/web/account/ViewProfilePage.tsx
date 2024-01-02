@@ -28,7 +28,7 @@ export const ViewProfilePage: FC = () => {
     }, []);
 
     return <div>
-        <h1>Hey {account.display_name}!</h1>
+        <h1>Hey {account.display_name}! ({account.username})</h1>
         <h4>Other info would be here.</h4>
 
         <div>

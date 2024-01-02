@@ -5,19 +5,25 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tuckersn/chatbackend/db"
 )
 
 func HttpAuth(c *gin.Context) (Token, error) {
-	bearer := c.GetHeader("Authorization")
-	if bearer == "" {
-		return Token{}, errors.New("Authorization header required")
-	} else if bearer[:7] != "Bearer " {
-		return Token{}, errors.New("Authorization header must start with 'Bearer '")
+	tokenStr := c.GetHeader("Authorization")
+	if len(tokenStr) > 7 {
+		if tokenStr[:7] != "Bearer " {
+			return Token{}, errors.New("Malformed Authorization header")
+		}
+		tokenStr = tokenStr[7:]
+	} else {
+		var err error
+		tokenStr, err = c.Cookie("token")
+		if err != nil {
+			return Token{}, errors.New("Cookie 'token' or header 'Authorization' not found")
+		}
+
 	}
 
-	tokenString := bearer[7:]
-	token, err := ParseToken(tokenString)
+	token, err := ParseToken(tokenStr)
 	if err != nil {
 		switch err.Error() {
 		case "Token is expired":
@@ -34,7 +40,6 @@ func HttpAuth(c *gin.Context) (Token, error) {
 
 func HttpAuthResponseHandled(c *gin.Context) (Token, error) {
 	token, err := HttpAuth(c)
-
 	if err == nil {
 		return token, nil
 	}
@@ -49,31 +54,10 @@ func HttpAuthResponseHandled(c *gin.Context) (Token, error) {
 			"error": "Malformed token, a key was not found in the token",
 		})
 	default:
+		log.Println("Unhandled error during auth (500): ", err)
 		c.JSON(500, gin.H{
 			"error": "Internal server error",
 		})
 	}
 	return Token{}, err
-}
-
-func LoginUser(c *gin.Context, user db.RecordUser, metadata interface{}) (Token, error) {
-	token, err := CreateToken(user.Username, user.Id, user.Admin)
-	if err != nil {
-		log.Println("Failed to create token", err)
-		c.JSON(500, gin.H{
-			"error": "Internal server error",
-		})
-		return Token{}, err
-	}
-
-	_, err = db.InsertLogin(user.Id, db.RECORD_LOGIN_ORIGIN_WEB, c.ClientIP(), metadata)
-	if err != nil {
-		log.Println("Failed to insert login", err)
-		c.JSON(500, gin.H{
-			"error": "Internal server error",
-		})
-		return Token{}, err
-	}
-
-	return token, nil
 }

@@ -11,6 +11,9 @@ token_secret=""
 token_issuer="chatroom"
 token_audience="chatroom"
 token_expiry_seconds=43200 # 12 hours
+cookie_maxage=43200 # 12 hours
+cookie_secure=true
+cookie_http_only=true
 
 [Notes]
 directory="~/.chatroom/notes"

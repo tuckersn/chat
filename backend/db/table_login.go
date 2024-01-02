@@ -58,7 +58,7 @@ func TableInitLogin(context TableInitContext) {
 			session_start TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 			ip TEXT NOT NULL,
 			metadata JSONB NOT NULL DEFAULT '{}'::JSONB,
-			FOREIGN KEY (user_id) REFERENCES user_identity(id)
+			FOREIGN KEY (user_id) REFERENCES user_identity(id) ON DELETE CASCADE
 		);
 	`)
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/buger/jsonparser"
 	"github.com/gin-gonic/gin"
@@ -163,8 +165,48 @@ func HttpLoginGoogleRedirectReceive(c *gin.Context) {
 	if err == gosql.ErrNoRows {
 		// Create new user
 		newUser = true
+		username := util.RandomString(6, []string{util.ALPHABET_ALPHANUMERIC})
+
+		totpSecret, totpImg, err := auth.GenerateTOTP(username)
+		if err != nil {
+			log.Println("Error generating TOTP", err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+
+		encodedTotpImg := base64.RawStdEncoding.EncodeToString(totpImg)
+
+		totpReqData, err := json.Marshal(db.RecordUserTotpRequestMetadata{
+			Secret:      totpSecret,
+			ImageData:   encodedTotpImg,
+			RequestTime: time.Now().Unix(),
+		})
+		if err != nil {
+			log.Println("Error marshalling TOTP request metadata", err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+
+		metadataJson := []byte(`{}`)
+		metadataJson, err = jsonparser.Set(
+			metadataJson,
+			totpReqData,
+			db.METADATA_KEY_TOTP_REQUEST,
+		)
+		if err != nil {
+			log.Println("Error setting TOTP request metadata", err)
+			c.JSON(500, gin.H{
+				"error": "Internal server error",
+			})
+			return
+		}
+
 		//TODO: check if id_token.EmailVerified is true
-		user, err = db.InsertUser(util.RandomString(6, []string{util.ALPHABET_ALPHANUMERIC}), id_token.Name, id_token.Email)
+		user, err = db.InsertUser(username, id_token.Name, id_token.Email, &totpSecret, metadataJson)
 		if err != nil {
 			log.Println("Error creating user indentity", err)
 			c.JSON(500, gin.H{
@@ -200,7 +242,7 @@ func HttpLoginGoogleRedirectReceive(c *gin.Context) {
 		}
 	}
 
-	token, err := auth.LoginUser(c, user, map[string]any{
+	token, err := LoginUser(c, user, map[string]any{
 		"google_id":  id_token.Sub,
 		"user_agent": c.Request.UserAgent(),
 		"url":        "https://" + c.Request.Host + "/login/google/receive",
@@ -209,6 +251,8 @@ func HttpLoginGoogleRedirectReceive(c *gin.Context) {
 		return // Error already handled by LoginUser
 	}
 
+	// c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
+	c.SetCookie("token", token.Signed, 60*60*24*365, "/", util.Config.Http.Host, false, true)
 	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
 }
 

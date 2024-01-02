@@ -73,14 +73,14 @@ type UserCreateRequest struct {
 }
 
 func UserCreate(username string, displayName string, email string) (db.RecordUser, error) {
-	user, err := db.InsertUser(username, displayName, email)
+	user, err := db.InsertUser(username, displayName, email, nil, nil)
 	return user, err
 }
 
 // HttpUserCreate godoc
-// @Summary create a new user
+// @Summary [ADMIN+2FA] create a new user
 // @Schemes
-// @Description creates a new user
+// @Description [ADMIN+2FA] creates a new user
 // @Tags User API
 // @Accept json
 // @Produce json
@@ -147,9 +147,9 @@ func HttpUserCreate(c *gin.Context) {
 }
 
 // HttpUserDelete godoc
-// @Summary deletes a user
+// @Summary [ADMIN+2FA] deletes a user
 // @Schemes
-// @Description deletes a user based on it's path
+// @Description [ADMIN+2FA] deletes a user based on it's path
 // @Tags User API
 // @Accept json
 // @Produce json
