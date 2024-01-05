@@ -10,6 +10,8 @@ import (
 	"log"
 	"math/big"
 	"net"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"time"
 
@@ -168,6 +170,26 @@ func httpServer() {
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	if util.Config.Production {
+		///TODO: deliver built frontend static files
+	} else {
+		proxy_url := func() *url.URL {
+			url, err := url.Parse(util.Config.Http.ReactDevServerHost)
+			if err != nil {
+				panic(err)
+			}
+			return url
+		}()
+		proxy := httputil.NewSingleHostReverseProxy(proxy_url)
+		r.NoRoute(func(c *gin.Context) {
+			c.Request.URL.Host = proxy_url.Host
+			c.Request.URL.Scheme = proxy_url.Scheme
+			c.Request.Header.Set("X-Forwarded-Host", c.Request.Header.Get("Host"))
+			c.Request.Host = proxy_url.Host
+			proxy.ServeHTTP(c.Writer, c.Request)
+		})
+	}
 
 	if _, err := os.Stat(util.Config.Http.CertFile); os.IsNotExist(err) {
 		generateSelfSignedCert()

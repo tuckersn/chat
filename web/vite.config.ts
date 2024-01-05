@@ -8,10 +8,8 @@ export default defineConfig({
     prefreshEnabled: true,
     reactAliasesEnabled: true
   }),
-  basicSsl(),
   ],
-  server: {
-    https: true,
+  server: { 
   },
 
 })

@@ -45,13 +45,14 @@ type ConfigNotes struct {
 }
 
 type ConfigHTTP struct {
-	Scheme         string   `toml:"scheme"` // http or https
-	Host           string   `toml:"host"`
-	Port           int      `toml:"port"`
-	CertFile       string   `toml:"cert_file"`
-	KeyFile        string   `toml:"key_file"`
-	CorsRegexs     []string `toml:"cors_regexs"`
-	OpensslCommand string   `toml:"openssl_command"`
+	Scheme             string   `toml:"scheme"` // http or https
+	Host               string   `toml:"host"`
+	Port               int      `toml:"port"`
+	CertFile           string   `toml:"cert_file"`
+	KeyFile            string   `toml:"key_file"`
+	CorsRegexs         []string `toml:"cors_regexs"`
+	OpensslCommand     string   `toml:"openssl_command"`
+	ReactDevServerHost string   `toml:"react_dev_server_host"`
 }
 
 type ConfigDatabase struct {

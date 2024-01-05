@@ -21,6 +21,7 @@ directory="~/.chatroom/notes"
 [HTTP]
 scheme="https"
 host="127.0.0.1"
+react_dev_server_host="http://localhost:5173"
 port=6500
 https_enabled=true
 cert_file=""
