@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,11 +14,11 @@ var _storageDirInitialized = false
 var StorageDir []string = []string{}
 
 type ConfigTomlFile struct {
-	Production      bool   `toml:"production"`
-	MainNode        bool   `toml:"main_node"`
-	Timezone        string `toml:"timezone"`
-	StorageDir      string `toml:"storage_dir"`
-	RedirectBaseUrl string `toml:"redirect_base_url"`
+	Production bool   `toml:"production"`
+	MainNode   bool   `toml:"main_node"`
+	Timezone   string `toml:"timezone"`
+	StorageDir string `toml:"storage_dir"`
+	BaseURL    string `toml:"base_url"`
 
 	Auth     ConfigAuth     `toml:"Auth"`
 	Notes    ConfigNotes    `toml:"Notes"`
@@ -87,7 +88,7 @@ type ConfigOpenAI struct {
 	APIKey string `toml:"api_key"`
 }
 
-var Config ConfigTomlFile = ConfigTomlFile{}
+var Config *ConfigTomlFile = &ConfigTomlFile{}
 
 func GetStorageDir(pathStr string) string {
 	if !_storageDirInitialized {
@@ -108,10 +109,6 @@ func CreateStorageDirectoryIfNotExists() {
 	}
 }
 
-func GetRedirectBaseUrl() string {
-	return Config.RedirectBaseUrl
-}
-
 func LoadConfigOnStartup() {
 	exePath, err := os.Executable()
 	if err != nil {
@@ -119,7 +116,7 @@ func LoadConfigOnStartup() {
 	}
 
 	exeDir := filepath.Dir(exePath)
-	configFilePath := filepath.Join(exeDir, "Config.toml")
+	configFilePath := filepath.Join(exeDir, "config.toml")
 
 	configFile, err := os.Open(configFilePath)
 	if err != nil {
@@ -138,6 +135,10 @@ func LoadConfigOnStartup() {
 		}
 		if http.KeyFile == "" {
 			http.KeyFile = GetStorageDir("cert.key")
+		}
+		if webServerUrl := os.Getenv("CHAT_WEB_SERVER_URL"); webServerUrl != "" {
+			log.Println("Using web server url from environment variable")
+			http.ReactDevServerHost = webServerUrl
 		}
 	}
 

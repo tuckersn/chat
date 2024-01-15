@@ -3,8 +3,7 @@ main_node=true
 timezone="UTC"
 
 storage_dir="~/.chatroom"
-redirect_base_url="localhost:5173"
-api_base_url="https://localhost:6500"
+base_url="localhost:6500"
 
 [Auth]
 token_secret=""

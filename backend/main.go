@@ -49,7 +49,21 @@ func main() {
 	}()
 
 	logger.Println("Initializing database connection")
-	db.InitializeDatabaseConnection(&cron)
+
+	func() {
+		var dbTries = 0
+		var err error
+		for dbTries < 5 {
+			err = db.InitializeDatabaseConnection(&cron)
+			if err == nil {
+				break
+			} else {
+				log.Println("Error initializing database connection, retrying in 2 seconds")
+				log.Println(err)
+				time.Sleep(2 * time.Second)
+			}
+		}
+	}()
 
 	var models []openai.ModelResponse
 	models, err = openai.GetModels()

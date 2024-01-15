@@ -47,10 +47,10 @@ var Tables = []Table{
 
 var databaseInitialized = false
 
-func InitializeDatabaseConnection(cron *gocron.Scheduler) {
+func InitializeDatabaseConnection(cron *gocron.Scheduler) error {
 
 	if databaseInitialized {
-		return
+		return nil
 	}
 	databaseInitialized = true
 
@@ -68,7 +68,7 @@ func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 			dbConf.Port,
 			dbConf.SSLMode))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	log.Printf("Checking for %s schema", dbConf.Schema)
@@ -134,6 +134,7 @@ func InitializeDatabaseConnection(cron *gocron.Scheduler) {
 		})
 	}
 
+	return nil
 }
 
 func Exec(query string) {

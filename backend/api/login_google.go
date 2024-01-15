@@ -251,9 +251,8 @@ func HttpLoginGoogleRedirectReceive(c *gin.Context) {
 		return // Error already handled by LoginUser
 	}
 
-	// c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
 	c.SetCookie("token", token.Signed, 60*60*24*365, "/", util.Config.Http.Host, false, true)
-	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.GetRedirectBaseUrl(), token.Signed, newUser))
+	c.Redirect(302, fmt.Sprintf("https://%s/account/oauth/google?token=%s&newUser=%t", util.Config.BaseURL, token.Signed, newUser))
 }
 
 // HttpLoginGoogleDisconnect godoc

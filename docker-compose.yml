@@ -1,0 +1,34 @@
+version: '3'
+services:
+  web-dev-server:
+    build: ./web
+    networks:
+      - chat
+    volumes:
+      - type: bind
+        source: ./web
+        target: /app
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+      - web-dev-server
+    ports:
+      - "6500:6500"
+    networks:
+      - chat
+    environment:
+      - CHAT_WEB_SERVER_URL=http://web-dev-server:5173
+  db:
+    image: postgres
+    networks:
+      - chat
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    logging:
+      driver: none
+networks:
+  chat:
+    driver: bridge
